@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recipes liked by follows</title>
+</head>
+<body>
+<table border="1" class = "table table-hover table-bordered">
+    <thead>
+    Recipes Liked by the follows
+    </thead>
+<hr>
+<hr>
+ <tbody>
+ {% for i in info %}
+     Number: {{ forloop.counter }}<br>
+     Recipe Name: <a href="/PandaXpress/Recipe/?id={{ i.recipe_id }}">{{ i.recipe_name }}</a><br>
+     Recipes Description: {{ i.recipe_description }}<br>
+     Cooking Time: {{ i.cooking_time }} minutes <br>
+     <hr>
+ {% endfor %}
+ </tbody>
+</table>
+</body>
+</html>

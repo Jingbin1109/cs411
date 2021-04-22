@@ -1,0 +1,179 @@
+from django.shortcuts import render,redirect
+from django.http import HttpResponse
+from PandaXpress import models
+from django.db import connection
+import re
+import datetime
+
+# Create your views here.
+def log_in(request):
+    if request.method == "POST":
+        # get the title from front end
+        get_user = request.POST.get("name")
+        get_pwd = request.POST.get("pwd")
+        if (get_user is not None) & (get_user != ''):
+            USER = models.Membership.objects.raw("SELECT * FROM Membership where username=%s", [get_user])
+            # sql = "SELECT * FROM Membership where username="+"'"+str(get_user)+"'"
+            # cursor = connection.cursor()
+            # cursor.execute(sql)
+            # db = cursor.fetchall()
+            # print("db", db)
+            if USER:
+                if str(USER[0].pwd)==get_pwd:
+                    request.session['id'] = USER[0].member_id
+                    print(USER[0].member_id)
+                    return redirect('/PandaXpress/')
+                else:
+                    return render(request, "log_in.html", {"error": "Password is not corrrect"})
+            else:
+                return render(request, "log_in.html", {"error": "no such username"})
+        elif get_user is None:
+            return render(request, "log_in.html",{"error": "None"})
+        else:
+            return render(request, "log_in.html", {"error": "username cannot be empty"})
+    return render(request, "log_in.html")
+
+def sign_up(request):
+    if request.method == "POST":
+        # get the content from html
+        username = request.POST.get("username")
+        pwd = request.POST.get("pwd")
+        user = models.Membership.objects.raw('SELECT * FROM Membership where username = %s', [username])
+        if user:
+            return render(request, "sign_up.html",{"error":"Username has been used"})
+                # redirect("/PandaXpress/signup")
+        else:
+            with connection.cursor() as cursor:
+                cursor.execute('INSERT into Membership(username,pwd) VALUES (%s, %s)', [username, pwd])
+            return redirect("/PandaXpress/signin")
+    return render(request, "sign_up.html")
+
+def Home(request):
+    id = request.session['id']
+        #request.GET.get('id')
+    if id is None:
+        return redirect('/PandaXpress/signin')
+    else:
+        user_obj = models.Membership.objects.get(member_id=id)
+        return render(request,"Home.html",{'id': request.session['id'],'USER':user_obj})
+
+def User(request):
+    if request.method == 'POST':
+        if "changepwd" in request.POST:
+            # get
+            id = request.POST.get('id')
+            pwd = request.POST.get('pwd')
+            with connection.cursor() as cursor:
+                cursor.execute('UPDATE Membership SET pwd = %s WHERE member_id = %s', [pwd, id])
+            # refresh
+            request.session['id'] = id
+            return redirect('/PandaXpress/user')
+        elif "addfollow" in request.POST:
+            id = request.session['id']
+            newfollow = request.POST.get('newfollow')
+            try:
+                newfollow1 = models.Membership.objects.get(username=newfollow)
+            except:
+                newfollow1 = None
+            if newfollow1 is not None:
+                newfollow2 = newfollow1.member_id
+                with connection.cursor() as cursor:
+                    cursor.execute('INSERT into Follow(member_id,following_id) VALUES (%s, %s)', [id, newfollow2])
+                # refresh
+                request.session['id'] = id
+                return redirect('/PandaXpress/user')
+            else:
+                HttpResponse("No such user.")
+        elif "logout" in request.POST:
+            return redirect('/PandaXpress/signin')
+        else:
+            return HttpResponse("Cannot do this operation.")
+    else:
+        # get id
+        id = request.session['id']
+            #request.GET.get('id')
+        # search
+        user_obj = models.Membership.objects.get(member_id=id)
+        # user_obj_list = models.Membership.objects.all()
+        follow_obj = models.Membership.objects.raw(
+            'SELECT b.member_id, b.username as username '
+            'FROM Membership b right join Follow a on a.following_id = b.member_id where a.member_id = %s',[id])
+            # models.Follow.objects.get(member_id=id)
+        store_obj = models.Recipes.objects.raw(
+            'SELECT b.recipe_id, b.recipe_name as recipe_name '
+            'FROM Recipes b right join Store a on a.recipe_id = b.recipe_id where a.member_id = %s',[id])
+            #models.Store.objects.get(member_id=id)
+        inventory_obj = models.Inventory.objects.raw(
+            'SELECT b.inventory_id as inventory_id, b.inventory_name as inventory_name '
+            'FROM Inventory b right join Owns a on b.inventory_id = a.inventory_id where a.member_id = %s',[id])
+        # follow_obj_list = models.Follow.objects.all()
+        return render(request, 'user.html',
+                      {'id': request.session['id'],"USER": user_obj,
+                       # "user_obj_list": user_obj_list,
+                       "follow_obj": follow_obj,
+                       "store_obj": store_obj,
+                       "inventory_obj": inventory_obj
+
+        })
+
+def Follow_recipes(request):
+    if request.method=="GET":
+        id = request.GET.get('id')
+        user_obj = models.Membership.objects.get(member_id=id)
+        MoreRecipes = models.Recipes.objects.raw(
+            'SELECT r.recipe_id as recipe_id, r.recipe_name as recipe_name, r.recipe_description as recipe_description,r.cooking_time as cooking_time '
+            'FROM Membership m natural join Follow f join Store s on f.following_id=s.member_id '
+            'join (SELECT* FROM Recipes WHERE cooking_time < 100 ) AS r on s.recipe_id = r.recipe_id '
+            'WHERE m.member_id = %s order by r.recipe_name', [id])
+    return render(request, "Follow_recipes.html", {"info": MoreRecipes,"USER":user_obj})
+
+def delete_follow(request):
+    id1 = request.GET.get("id")
+    id2 = request.GET.get("followid")
+    models.Follow.objects.filter(member_id=id1,following_id=id2).delete()
+    request.session['id'] = id1
+    return redirect("/PandaXpress/user")
+
+def delete_store(request):
+    id1 = request.GET.get("id")
+    id2 = request.GET.get("recipeid")
+    models.Store.objects.filter(member_id=id1,recipe_id=id2).delete()
+    request.session['id'] = id1
+    return redirect("/PandaXpress/user")
+
+def RecInd(request):
+    id = request.session['id']
+    # request.GET.get('id')
+    user_obj = models.Membership.objects.get(member_id=id)
+    if request.method == "GET":
+        # get the title from front end
+        get_ind = request.GET.get("ind")
+        if (get_ind is not None)&(get_ind !=''):
+            ind_list = str(get_ind).split(',')
+            db = []
+            for i in ind_list:
+                ind_list1 = "%" + i+ "%"
+                db2 = models.Ingredients.objects.raw(
+                        "SELECT ingredient_id FROM Ingredients where ingredient_name LIKE %s",
+                        [ind_list1])
+                if db2:
+                    for j in db2:
+                        db = db+[j.ingredient_id]
+                # print(db2)
+                # db = db+re.findall("\d+",str(db2))
+                # print(db)
+            db = tuple(db)
+            db1 = models.Recipes.objects.raw(
+            'SELECT Distinct r.recipe_id as recipe_id, r.recipe_name as recipe_name, r.recipe_description as recipe_description,r.cooking_time as cooking_time '
+            'FROM Recipes r natural join Recipe_Incl ri WHERE ri.ingredient_id in %s order by r.recipe_name', [db])
+            if db!=[] :
+                return render(request,"RecInd.html",{"data":db1,"USER":user_obj})
+            else:
+                return render(request, "RecInd.html", {"error": "No recipes, please try others","USER":user_obj})
+        elif get_ind is None:
+            return render(request, "RecInd.html",{"error":"Please enter ingredient names","USER":user_obj})
+        else:
+            return render(request,"RecInd.html",{"error":"Please enter correct ingredient names","USER":user_obj})
+    else:
+        return HttpResponse("Cannot do this operation.")
+

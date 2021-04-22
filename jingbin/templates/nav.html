@@ -1,0 +1,39 @@
+{% load static %}
+<nav class="navbar navbar-inverse" style="color: #666666">
+  <div class="container-fluid" style="color: #666666">
+      <a href="/PandaXpress/"><img src="{% static "img/Maintitle_red.png" %}" height="100px"></a>
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header" style="color: #666666">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="/PandaXpress/signup/">Sign up</a>
+    </div>
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" style="color: #666666">
+      <ul class="nav navbar-nav" >
+        <li class="active"><a href="/PandaXpress/user/">Inventory<span class="sr-only">(current)</span></a></li>
+        <li class="active"><a href="/PandaXpress/user/">Recipes</a></li>
+      <li class="active"><a href="/PandaXpress/user/">Create New Recipes</a></li>
+      </ul>
+      <form class="navbar-form navbar-left">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search Recipes with title">
+        </div>
+        <button type="#" class="btn btn-default">Submit</button>
+      </form>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="color: #dddddd">{{ USER.username }}<span class="caret"></span></a>
+          <ul class="dropdown-content">
+            <li><a href="/PandaXpress/user/?id={{ USER.member_id }}" style="color: #dddddd">Profile</a></li>
+            <li><a href="/PandaXpress/signin" style="color: #dddddd">Log Out</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>

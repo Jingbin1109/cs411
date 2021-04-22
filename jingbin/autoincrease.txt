@@ -1,0 +1,135 @@
+use pandaxpress;
+CREATE TABLE newMembership(
+member_id INT PRIMARY KEY auto_increment,
+username VARCHAR(50),
+pwd VARCHAR(50) 
+);
+
+CREATE TABLE newFollow(
+member_id INT(7),
+following_id INT(7),
+FOREIGN KEY(member_id) references newMembership(member_id) ON DELETE CASCADE,
+FOREIGN KEY(following_id) references newMembership(member_id) ON DELETE CASCADE);
+CREATE TABLE newOwns(
+member_id INT,
+inventory_id INT,
+FOREIGN KEY(member_id) references newMembership(Member_id) ON DELETE CASCADE,
+FOREIGN KEY(inventory_id) references newInventory(Inventory_id) ON DELETE CASCADE
+);
+
+CREATE TABLE newInventory(
+inventory_id INT auto_increment,
+Inventory_name VARCHAR(50),
+PRIMARY KEY(inventory_id)
+);
+CREATE TABLE newStore(
+recipe_id INT,
+member_id INT,
+recipe_member_rel VARCHAR(10),
+FOREIGN KEY(member_id) references newMembership(Member_id) ON DELETE CASCADE,
+FOREIGN KEY(recipe_id) references newRecipes(recipe_id) ON DELETE CASCADE
+);
+create TABLE newRecipes(
+recipe_id int NOT NULL auto_increment,
+recipe_creator int,
+recipe_name varchar(1000),
+recipe_genre varchar(1000),
+recipe_description varchar(1000),
+recipe_steps longtext,
+cooking_time int DEFAULT NULL,
+PRIMARY KEY (recipe_id),
+FOREIGN KEY(recipe_creator) references newMembership(member_id) ON DELETE SET NULL);
+
+CREATE TABLE newRecipe_Incl(
+recipe_id INT,
+ingredient_id INT,
+FOREIGN KEY(ingredient_id) references newIngredients(ingredient_id) ON DELETE CASCADE,
+FOREIGN KEY(recipe_id) references newRecipes(recipe_id) ON DELETE CASCADE
+);
+CREATE TABLE newNutrients(
+nutrient_id INT1 PRIMARY KEY auto_increment,
+nutrient_name VARCHAR(25),
+nutrient_description longtext);
+CREATE Table newHas(
+recipe_id INT,
+nutrient_id INT1,
+nutrient_amnt float4 default 0,
+foreign key(recipe_id) references newRecipes(recipe_id) ON DELETE CASCADE,
+foreign key(nutrient_id) references newNutrients(nutrient_id) ON DELETE CASCADE
+);
+CREATE TABLE `newIngredients` (
+`ingredient_id` int(11) NOT NULL auto_increment,
+`ingredient_name` varchar(100) NOT NULL,
+PRIMARY KEY (`ingredient_id`)
+);
+
+CREATE TABLE `newInventory_Incl` (
+`inventory_incl_id` int(11) NOT NULL auto_increment,
+`inventory_id` int(11) NOT NULL,
+`ingredient_id` int(11) NOT NULL,
+`ingredient_amount` float NOT NULL,
+`ingredient_unit` varchar(50) NOT NULL,
+`ingredient_added_date` date NOT NULL,
+`ingredient_expiry_date` date NOT NULL,
+PRIMARY KEY (`inventory_incl_id`),
+foreign key(inventory_id) references newInventory(inventory_id) ON DELETE CASCADE,
+foreign key(ingredient_id) references newIngredients(ingredient_id) ON DELETE CASCADE
+);
+
+insert newmembership
+select * from membership; 
+insert newfollow
+select * from follow; 
+insert newRecipes
+select * from Recipes; 
+insert newIngredients
+select * from Ingredients; 
+insert newInventory
+select * from inventory; 
+insert newNutrients
+select * from nutrients; 
+insert newHas
+select * from Has; 
+insert newOwns
+select * from owns; 
+insert newRecipe_incl
+select * from recipe_incl; 
+insert newinventory_incl
+select * from inventory_incl; 
+
+drop table membership；
+drop table follow; 
+drop table store;
+drop table recipe_incl; 
+drop table inventory_incl; 
+drop table owns; 
+drop table Has; 
+drop table nutrients; 
+drop table inventory; 
+drop table Ingredients; 
+drop table Recipes; 
+drop table membership;
+
+
+ALTER TABLE `pandaxpress`.`newstore` 
+RENAME TO  `pandaxpress`.`store` ;
+ALTER TABLE `pandaxpress`.`newmembership` 
+RENAME TO  `pandaxpress`.`membership` ;
+ALTER TABLE `pandaxpress`.`newrecipes` 
+RENAME TO  `pandaxpress`.`recipes` ;
+ALTER TABLE `pandaxpress`.`newingredients` 
+RENAME TO  `pandaxpress`.`ingredients` ;
+ALTER TABLE `pandaxpress`.`newowns` 
+RENAME TO  `pandaxpress`.`owns` ;
+ALTER TABLE `pandaxpress`.`newfollmembershipow` 
+RENAME TO  `pandaxpress`.`follow` ;
+ALTER TABLE `pandaxpress`.`newinventory` 
+RENAME TO  `pandaxpress`.`inventory` ;
+ALTER TABLE `pandaxpress`.`newinventory_incl` 
+RENAME TO  `pandaxpress`.`inventory_incl` ;
+ALTER TABLE `pandaxpress`.`newrecipe_incl` 
+RENAME TO  `pandaxpress`.`recipe_incl` ;
+ALTER TABLE `pandaxpress`.`newnutrients` 
+RENAME TO  `pandaxpress`.`nutrients` ;
+ALTER TABLE `pandaxpress`.`newhas` 
+RENAME TO  `pandaxpress`.`has` ;

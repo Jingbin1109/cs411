@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    User
+{% endblock title %}
+
+{% block body %}
+<form action="" method="post">
+    {% csrf_token %}
+    <p>
+        <input type="hidden" name="id" value="{{ USER.member_id }}">
+
+    </p>
+    <p>
+        Username： {{ USER.username }}
+    </p>
+    <p>
+        password：
+        <input type="text" name="pwd" value="{{ USER.pwd }}">
+
+    </p>
+    <p>
+        <button type="submit" class="btn"  name="changepwd">Change Password</button>
+    </p>
+</form>
+<hr>
+<hr>
+Follows: <a href="/PandaXpress/follow_recipes/?id={{ id }}">Quick Recipes they like</a>
+<br>
+    {% for i in follow_obj %}
+        {{ i.username }}|
+        <a href="/PandaXpress/delete_follow/?id={{ id }}&followid={{ i.member_id }}">Delete</a>
+        <br>
+    {% endfor %}
+<form action="" method="post">
+    {% csrf_token %}
+
+    <p>
+        Username：
+        <input type="text" name="newfollow">
+        <button type="submit" class="btn" name="addfollow">Add more follows</button>
+    </p>
+{{ error }}
+</form>
+
+<hr>
+<hr>
+
+Recipes Liked:
+<br>
+    {% for i in store_obj %}
+        {{ i.recipe_name }}
+        <a href="/PandaXpress/delete_store/?id={{ id }}&recipeid={{ i.recipe_id }}">Delete</a>
+        <br>
+    {% endfor %}
+<br>
+<hr>
+<hr>
+Inventory:
+<br>
+    {% for i in inventory_obj %}
+        {{ i.inventory_id }}
+        {{ i.inventory_name }}
+        <br>
+    {% endfor %}
+<br>
+<hr>
+<form action="" method="post">
+    {% csrf_token %}
+    <p>
+        <button type="submit" class="btn"  name="logout">Log Out</button>
+    </p>
+</form>
+{% endblock body %}

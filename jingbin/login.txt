@@ -1,0 +1,224 @@
+
+<body background="{% static "img/background.jpg" %}">
+<form action="" method="post">
+    <!-- for safefy -->
+    {% csrf_token %}
+    <p>
+        username <input type="text" name="name" prefix="Useroutlined">
+    </p>
+    <p>
+        password <input type="text" name="pwd">
+    </p>
+    <p>
+        <button type="submit" class="btn">Log In</button>
+    </p>
+
+</form>
+{{ error }}
+</body>
+</html>
+
+{% load static %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Log In Page</title>
+<style>
+*{
+	padding:0px;
+	margin:0px;
+	}
+
+
+img{
+	border:0;
+	}
+.lg{width:468px; height:468px; margin:100px auto; }
+.lg_top{ height:200px; width:468px;}
+.lg_main{width:400px; height:180px; margin:0 25px;}
+.lg_m_1{
+	width:290px;
+	height:100px;
+	padding:60px 55px 20px 55px;
+}
+.ur{
+	height:37px;
+	border:0;
+	color:#666;
+	width:236px;
+	margin:4px 28px;
+	background:{% static 'img/user.png' %} no-repeat;
+	padding-left:10px;
+	font-size:16pt;
+	font-family:Arial, Helvetica, sans-serif;
+}
+.pw{
+	height:37px;
+	border:0;
+	color:#666;
+	width:236px;
+	margin:4px 28px;
+	background:{% static 'img/password.png' %} no-repeat;
+	padding-left:10px;
+	font-size:16pt;
+	font-family:Arial, Helvetica, sans-serif;
+}
+.bn{width:330px; height:72px; border:0; display:block; font-size:18px; color:#FFF; font-family:Arial, Helvetica, sans-serif; font-weight:bolder;}
+.lg_foot{
+	height:80px;
+	width:330px;
+	padding: 6px 68px 0 68px;
+}
+</style>
+</head>
+
+<body class="b" background="{% static "img/background.jpg" %}">
+<div class="lg">
+<form action="#" method="POST">
+    <!-- for safefy -->
+    {% csrf_token %}
+    <div class="lg_top"></div>
+    <div class="lg_main">
+        <div class="lg_m_1">
+
+        username <input type="text" name="name" prefix="Useroutlined" class="ur" />
+        password <input type="text" name="pwd" class="pw" />
+
+        </div>
+    </div>
+    <div>
+     <button type="submit" class="bn">Log In</button>
+</form>
+    {{ error }}
+</div>
+
+</body>
+</html>
+#################################
+#### sign up################
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body background="{% static 'img/bg1.jpg' %}">
+<form action="" method="post">
+    <!-- for safefy -->
+    {% csrf_token %}
+    <p>
+        username <input type="text" placeholder="less than 50"  name="username">
+    </p>
+    <p>
+        password <input type="text" name="pwd">
+    </p>
+    <p>
+        <button type="submit" class="btn">Sign up</button>
+    </p>
+
+</form>
+</body>
+</html>
+#########################################
+######### home###########
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>InvRec</title>
+</head>
+<body>
+<table border="1" class="table table-hover table-bordered">
+    <tr>
+        <th>User</th>
+    </tr>
+    <tbody>
+        <tr>
+            <td>{{ USER.username }}</td>
+            <td>
+                <a href="/PandaXpress/user/?id={{ USER.member_id }}">Profile</a>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+</body>
+</html>
+#################################
+########user##########
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form action="" method="post">
+    {% csrf_token %}
+    <p>
+        <input type="hidden" name="id" value="{{ user_obj.member_id }}">
+
+    </p>
+    <p>
+        Username： {{ user_obj.username }}
+    </p>
+    <p>
+        password：
+        <input type="text" name="pwd" value="{{ user_obj.pwd }}">
+
+    </p>
+    <p>
+        <button type="submit" class="btn"  name="changepwd">Change Password</button>
+    </p>
+</form>
+<hr>
+<hr>
+Follows: <a href="/PandaXpress/follow_recipes/?id={{ id }}">Quick Recipes they like</a>
+<br>
+    {% for i in follow_obj %}
+        {{ i.username }}|
+        <a href="/PandaXpress/delete_follow/?id={{ id }}&followid={{ i.member_id }}">Delete</a>
+        <br>
+    {% endfor %}
+<form action="" method="post">
+    {% csrf_token %}
+
+    <p>
+        Username：
+        <input type="text" name="newfollow">
+        <button type="submit" class="btn" name="addfollow">Add more follows</button>
+    </p>
+</form>
+
+<hr>
+<hr>
+
+Recipes Liked:
+<br>
+    {% for i in store_obj %}
+        {{ i.recipe_name }}
+        <a href="/PandaXpress/delete_store/?id={{ id }}&recipeid={{ i.recipe_id }}">Delete</a>
+        <br>
+    {% endfor %}
+<br>
+<hr>
+<hr>
+Inventory:
+<br>
+    {% for i in inventory_obj %}
+        {{ i.inventory_id }}
+        {{ i.inventory_name }}
+        <br>
+    {% endfor %}
+<br>
+<hr>
+<form action="" method="post">
+    {% csrf_token %}
+    <p>
+        <button type="submit" class="btn"  name="logout">Log Out</button>
+    </p>
+</form>
+</body>
+</html>
