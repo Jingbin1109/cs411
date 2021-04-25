@@ -15,6 +15,6 @@ urlpatterns = [
     path('inven/create/', views.CreateInven, name="create"),
     path('inven/delete/', views.DeleteInven, name='delete'),
     path('inven/update/', views.update_inven, name = 'update'),
-    path('inven/search/', views.search, name = 'search')
+    # path('inven/search/', views.search, name = 'search')
 
 ]
