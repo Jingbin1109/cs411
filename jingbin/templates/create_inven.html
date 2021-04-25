@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create_Inventory</title>
+</head>
+<body>
+<form action="" method="POST">
+    {% csrf_token %}
+    <p>
+        inventory_id <input type="number" name="inventory_id">
+    </p>
+    <p>
+        inventory_name <input type="text" name="inventory_name">
+    </p>
+    <p>
+        <button type="submit">Create</button>
+    </p>
+</form>
+    {{ success }}
+</body>
+</html>

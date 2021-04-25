@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Inventory</title>
+</head>
+<body>
+<form action="" method="post">
+    {% csrf_token %}
+    <p>
+        <input type = "hidden" name = "id" value="{{ i.inventory_id }}">
+    </p>
+    <p>
+        Inventory ID:<input type="number" name="inventory_id" value="{{ i.inventory_id }}">
+    </p>
+    <p>
+        Inventory Name: <input type="text" name="inventory_name" value="{{ i.inventory_name }}">
+    </p>
+    <p>
+        <button type="submit">Update</button>
+    </p>
+</form>
+
+</body>
+</html>

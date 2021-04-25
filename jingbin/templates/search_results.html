@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Main Search</title>
+</head>
+<body>
+    <table border='1'>
+        <thead class="thead">
+            <tr>
+                <th> ID</th>
+                <th> name</th>
+            </tr>
+        </thead>
+    {% for i in data %}
+        <tr>
+            <td>{{i.0 }} </td>
+            <td>{{i.1 }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+{{ error }}
+</body>
+</html>
