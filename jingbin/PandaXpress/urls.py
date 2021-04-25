@@ -11,6 +11,10 @@ urlpatterns = [
     path("delete_store/",views.delete_store),
     path("recipe_ingredients/",views.RecInd),
 
-
+    path('inven/', views.show_inven, name = "show"),
+    path('inven/create/', views.CreateInven, name="create"),
+    path('inven/delete/', views.DeleteInven, name='delete'),
+    path('inven/update/', views.update_inven, name = 'update'),
+    path('inven/search/', views.search, name = 'search')
 
 ]

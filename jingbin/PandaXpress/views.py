@@ -190,12 +190,6 @@ def update_inven(request):
         return redirect("/inven/")
     return render(request, "inven_update.html")
 
-def advanced(request):
-    query = 'SELECT j.ingredient_id, k.ingredient_name FROM inventory i JOIN inventory_incl j ON i.inventory_id = j.inventory_id JOIN ingredients k ON k.ingredient_id = j.ingredient_id WHERE i.inventory_id % 10 = 3 UNION SELECT j.ingredient_id, k.ingredient_name FROM inventory i JOIN inventory_incl j ON i.inventory_id = j.inventory_id JOIN ingredients k ON k.ingredient_id = j.ingredient_id WHERE i.inventory_id % 10 = 2 UNION SELECT j.ingredient_id, k.ingredient_name FROM inventory i JOIN inventory_incl j ON i.inventory_id = j.inventory_id JOIN ingredients k ON k.ingredient_id = j.ingredient_id WHERE i.inventory_id % 10 = 5'
-    with connection.cursor() as cursor:
-        cursor.execute(query)
-    return render(request, 'advanced.html', {'data':cursor})
-
 def search(request):
     if request.method == 'GET':
         words = request.GET.get("name")
