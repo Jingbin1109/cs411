@@ -8,29 +8,32 @@ import datetime
 # Create your views here.
 def log_in(request):
     if request.method == "POST":
-        # get the title from front end
-        get_user = request.POST.get("name")
-        get_pwd = request.POST.get("pwd")
-        if (get_user is not None) & (get_user != ''):
-            USER = models.Membership.objects.raw("SELECT * FROM Membership where username=%s", [get_user])
-            # sql = "SELECT * FROM Membership where username="+"'"+str(get_user)+"'"
-            # cursor = connection.cursor()
-            # cursor.execute(sql)
-            # db = cursor.fetchall()
-            # print("db", db)
-            if USER:
-                if str(USER[0].pwd)==get_pwd:
-                    request.session['id'] = USER[0].member_id
-                    print(USER[0].member_id)
-                    return redirect('/PandaXpress/')
-                else:
-                    return render(request, "log_in.html", {"error": "Password is not corrrect"})
-            else:
-                return render(request, "log_in.html", {"error": "no such username"})
-        elif get_user is None:
-            return render(request, "log_in.html",{"error": "None"})
+        if "signup" in request.POST:
+            return redirect('/PandaXpress/signup/')
         else:
-            return render(request, "log_in.html", {"error": "username cannot be empty"})
+            # get the title from front end
+            get_user = request.POST.get("name")
+            get_pwd = request.POST.get("pwd")
+            if (get_user is not None) & (get_user != ''):
+                USER = models.Membership.objects.raw("SELECT * FROM Membership where username=%s", [get_user])
+                # sql = "SELECT * FROM Membership where username="+"'"+str(get_user)+"'"
+                # cursor = connection.cursor()
+                # cursor.execute(sql)
+                # db = cursor.fetchall()
+                # print("db", db)
+                if USER:
+                    if str(USER[0].pwd)==get_pwd:
+                        request.session['id'] = USER[0].member_id
+                        print(USER[0].member_id)
+                        return redirect('/PandaXpress/')
+                    else:
+                        return render(request, "log_in.html", {"error": "Password is not corrrect"})
+                else:
+                    return render(request, "log_in.html", {"error": "no such username"})
+            elif get_user is None:
+                return render(request, "log_in.html",{"error": "None"})
+            else:
+                return render(request, "log_in.html", {"error": "username cannot be empty"})
     return render(request, "log_in.html")
 
 def sign_up(request):
@@ -228,13 +231,35 @@ def DeleteInven(request):
 
 # Zheng's code
 def ShowRecipe(request):
+    try:
+        id = request.session['id']
+        # request.GET.get('id')
+        user_obj = models.Membership.objects.get(member_id=id)
+    except:
+        return redirect('/PandaXpress/signin')
     db = models.Recipes.objects.raw('SELECT * FROM Recipes ORDER BY recipe_id DESC LIMIT 10 ')
-    return (render(request, "recipeshow.html",{"data":db}))
+    return render(request, "recipeshow.html",{"data":db,'id': request.session['id'], 'USER': user_obj})
 
+def OwnRecipe(request):
+    try:
+        id = request.session['id']
+        # request.GET.get('id')
+        user_obj = models.Membership.objects.get(member_id=id)
+    except:
+        return redirect('/PandaXpress/signin')
+    db = models.Recipes.objects.raw('SELECT * FROM Recipes WHERE recipe_creator = %s',[id])
+    return (render(request, "recipeshow.html", {"data": db, 'id': request.session['id'], 'USER': user_obj}))
 def CreateRecipe(request):
     if request.method == 'POST':
         #recipe_id = 300000+ random.randint(0,9999)
-        recipe_creator = 9000001
+        try:
+            id = request.session['id']
+            # request.GET.get('id')
+            user_obj = models.Membership.objects.get(member_id=id)
+
+        except:
+            return redirect('/PandaXpress/signin')
+        recipe_creator = id
         recipe_name = request.POST.get("recipe_name")
         recipe_description = request.POST.get("recipe_description")
         with connection.cursor() as cursor:
