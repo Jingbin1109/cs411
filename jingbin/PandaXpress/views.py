@@ -177,3 +177,57 @@ def RecInd(request):
     else:
         return HttpResponse("Cannot do this operation.")
 
+def show_inven(request):
+    db = Inven.objects.raw('SELECT * FROM Inventory')
+    return (render(request, "show.html", {"data": db}))
+
+def update_inven(request):
+    if request.method == 'POST':
+        inventory_name = request.POST.get("inventory_name")
+        inventory_id = request.POST.get("inventory_id")
+        with connection.cursor() as cursor:
+            cursor.execute('UPDATE inventory SET inventory_name = %s WHERE inventory_id = %s', [inventory_name, inventory_id])
+        return redirect("/inven/")
+    return render(request, "inven_update.html")
+
+def advanced(request):
+    query = 'SELECT j.ingredient_id, k.ingredient_name FROM inventory i JOIN inventory_incl j ON i.inventory_id = j.inventory_id JOIN ingredients k ON k.ingredient_id = j.ingredient_id WHERE i.inventory_id % 10 = 3 UNION SELECT j.ingredient_id, k.ingredient_name FROM inventory i JOIN inventory_incl j ON i.inventory_id = j.inventory_id JOIN ingredients k ON k.ingredient_id = j.ingredient_id WHERE i.inventory_id % 10 = 2 UNION SELECT j.ingredient_id, k.ingredient_name FROM inventory i JOIN inventory_incl j ON i.inventory_id = j.inventory_id JOIN ingredients k ON k.ingredient_id = j.ingredient_id WHERE i.inventory_id % 10 = 5'
+    with connection.cursor() as cursor:
+        cursor.execute(query)
+    return render(request, 'advanced.html', {'data':cursor})
+
+def search(request):
+    if request.method == 'GET':
+        words = request.GET.get("name")
+        temp = request.GET.get("gotem")
+        print(temp)
+        if temp not in ["inventory", "ingredients", None]:
+            return HttpResponse("Yo this is not the right database!")
+        if temp == 'ingredients':
+            temp2 = 'ingredient_name'
+        else:
+            temp2 = 'inventory_name'
+        if words:
+            words = "%"+words+"%"
+            with connection.cursor() as cursor:
+                if temp2 == "inventory_name":
+                    cursor.execute('SELECT * FROM inventory WHERE inventory_name LIKE %s', [words])
+                else:
+                    cursor.execute('SELECT * FROM ingredients WHERE ingredient_name LIKE %s', [words])
+            return render(request, "search_results.html", {"data": cursor})
+    return render(request, "search_inven.html")
+
+def CreateInven(request):
+    if request.method == 'POST':
+        inventory_name = request.POST.get("inventory_name")
+        inventory_id = request.POST.get("inventory_id")
+        with connection.cursor() as cursor:
+            cursor.execute('INSERT into Inventory(inventory_id, inventory_name) VALUES (%s,%s)', [inventory_id, inventory_name])
+        return redirect("/inven/")
+    return render(request, "create_inven.html")
+
+def DeleteInven(request):
+    id = request.GET.get("id")
+    with connection.cursor() as cursor:
+        cursor.execute('DELETE FROM pandaxpress.inventory WHERE inventory_id = %s', [id])
+    return redirect('/inven/')
