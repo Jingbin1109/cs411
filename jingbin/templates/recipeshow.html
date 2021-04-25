@@ -1,0 +1,26 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Show_Recipe</title>
+</head>
+<body>
+    <table border='1'>
+        <thead class="thead">
+            <tr>
+                <th>Recipe name</th>
+                <th>Recipe_description </th>
+                <th>Action</th>
+            </tr>
+        </thead>
+    {% for i in data %}
+        <tr>
+            <td>{{i.recipe_name }} </td>
+            <td>{{i.recipe_description }}</td>
+            <td><a href='update/?id={{ i.recipe_id }}'>Edit</a> | <a href='delete/?id={{ i.recipe_id }}'>Delete</a> </td>
+        </tr>
+    {% endfor %}
+    </table>
+</body>
+</html>

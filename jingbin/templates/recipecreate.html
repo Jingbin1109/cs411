@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create_Recipe</title>
+</head>
+<body>
+<form action="" method="post">
+    {% csrf_token %}
+    <p>
+        recipe_name <input type="text" name="recipe_name">
+    </p>
+    <p>
+        recipe_description <input type="text" name="recipe_description">
+    </p>
+    <p>
+        <button type="submit">Create</button>
+    </p>
+</form>
+    {{ success }}
+</body>
+</html>

@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced Recipe Search</title>
+</head>
+<body>
+    <table border='1'>
+        <thead class="thead">
+            <tr>cd
+                <th>User_name</th>
+                <th>Count</th>
+                <th>Cooking_average_time </th>
+                <th>List of Name</th>
+            </tr>
+        </thead>
+    {% for i in data %}
+        <tr>
+            <td>{{i.0 }} </td>
+            <td>{{i.1 }}</td>
+            <td>{{i.3 }}</td>
+            <td>{{ i.2 }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+{{ error }}
+</body>
+</html>

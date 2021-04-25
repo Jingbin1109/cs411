@@ -177,3 +177,80 @@ def RecInd(request):
     else:
         return HttpResponse("Cannot do this operation.")
 
+# Zheng's Recipe Start from here
+def ShowRecipe(request):
+    db = Recipes.objects.raw('SELECT * FROM Recipes ORDER BY recipe_id DESC LIMIT 10 ')
+    return (render(request, "recipeshow.html",{"data":db}))
+
+def CreateRecipe(request):
+    if request.method == 'POST':
+        recipe_id = 300000+ random.randint(0,9999)
+        recipe_creator = 9000001
+        recipe_name = request.POST.get("recipe_name")
+        recipe_description = request.POST.get("recipe_description")
+        with connection.cursor() as cursor:
+            cursor.execute('INSERT into Recipes(recipe_id,recipe_creator,recipe_name,recipe_description) VALUES (%s,%s, %s, %s)', [recipe_id,recipe_creator, recipe_name, recipe_description])
+        return redirect("/recipe/")
+
+    return render(request, "recipecreate.html")
+
+
+def DeleteRecipe(request):
+    # id = request.GET['id']
+    # id = User.objects.get(id=id)
+    id = request.GET.get("id")
+    Recipes.objects.filter(recipe_id=id).delete()
+    return redirect("/recipe/")
+
+def UpdateRecipe(request):
+    if request.method == 'POST':
+        recipe_id = request.GET.get("id")
+        recipe_name = request.POST.get("recipe_name")
+        recipe_description = request.POST.get("recipe_description")
+        '''
+        with connection.cursor() as cursor:
+            db = cursor.execute(
+                'SELECT * FROM Recipes WHERE recipe_id = %s)',
+                recipe_id)
+        '''
+
+
+        with connection.cursor() as cursor:
+            cursor.execute(
+                'UPDATE Recipes SET recipe_name = %s, recipe_description = %s WHERE recipe_id = %s ',
+                [recipe_name, recipe_description,recipe_id])
+        return redirect("/recipe/")
+    else:
+        return render(request, "recipeupdate.html")
+
+def SearchRecipe(request):
+    if request.method == 'GET':
+        get_name = request.GET.get("name")
+        if get_name:
+            get_name = "%" + get_name + "%"
+            #db = Recipes.objects.filter(recipe_name__icontains= get_name)
+            db = models.Recipes.objects.raw("SELECT * FROM Recipes where recipe_name LIKE %s LIMIT 10", [get_name])
+            if db:
+                return render(request, "recipesearch.html", {"data": db})
+            else:
+                return render(request, "recipesearch.html", {"error": "No Such a Recipe"})
+        else:
+            return render(request, "recipesearch.html", {"error1": "Input could not be empty"})
+    else:
+        return (HttpResponse("Error"))
+
+def AdvancedSearch(request):
+    sql = "SELECT m.username AS username, COUNT(*) AS count, GROUP_CONCAT(r.recipe_name SEPARATOR \', \') AS list_name, " \
+          "CEIL(AVG(r.cooking_time))AS cooking_average_time FROM Recipes r JOIN Membership m ON r.recipe_creator = m.member_id " \
+          "WHERE  r.cooking_time < 30 GROUP BY r.recipe_creator " \
+          "HAVING COUNT(*) > 5 ORDER BY COUNT(*) DESC, m.username ASC LIMIT 15"
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    db = cursor.fetchall()
+    print("db",db)
+    if db is not None:
+        return render(request, "recipeadvance.html", {"data": db})
+    else:
+        render(request, "recipeadvance.html", {"error": "Wrong"})
+
+# Zheng's Recipe Ends here

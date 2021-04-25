@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search_Recipe</title>
+</head>
+<body>
+     <form action="/recipe/search/">
+        <label for="">
+            input the name :<input type="text" name="name">
+        </label>
+        {# submit the sheet #}
+        <label for="">
+            <input type="submit" value="Submit">
+        </label>
+    </form>
+    <hr>
+    {{ error1 }}
+    {{ error }}
+    <br>
+    {% for i in data %}
+        recipe_name: {{i.recipe_name }}<br>
+        recipe_description: {{i.recipe_description }}<br>
+    {% endfor %}
+
+</body>
+</html>
