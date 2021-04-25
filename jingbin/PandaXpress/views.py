@@ -49,11 +49,11 @@ def sign_up(request):
     return render(request, "sign_up.html")
 
 def Home(request):
-    id = request.session['id']
-        #request.GET.get('id')
-    if id is None:
+    if request.session['id'] is None:
         return redirect('/PandaXpress/signin')
     else:
+        id = request.session['id']
+        # request.GET.get('id')
         user_obj = models.Membership.objects.get(member_id=id)
         return render(request,"Home.html",{'id': request.session['id'],'USER':user_obj})
 
