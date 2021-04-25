@@ -5,20 +5,31 @@
 {% endblock title %}
 
 {% block body %}
-    <table border='1'>
-        <thead class="thead">
-            <tr>
-                <th>Recipe name</th>
-                <th>Recipe_description </th>
-                <th>Action</th>
-            </tr>
-        </thead>
-    {% for i in data %}
-        <tr>
-            <td>{{i.recipe_name }} </td>
-            <td>{{i.recipe_description }}</td>
-            <td><a href='update/?id={{ i.recipe_id }}'>Edit</a> | <a href='delete/?id={{ i.recipe_id }}'>Delete</a> </td>
-        </tr>
-    {% endfor %}
-    </table>
+    <form action="">
+        <label for="">
+            input the ingredients of recipes you want:  <input type="text" name="ind" placeholder="milk,potato">
+        </label>
+        {# submit the sheet #}
+        <label for="">
+            <input type="submit" value="Submit" name="searchingredient">
+        </label>
+    </form>
+    <form action="">
+        <label for="">
+            input the recipe name :  <input type="text" name="reci_name" placeholder="waffles">
+        </label>
+        {# submit the sheet #}
+        <label for="">
+            <input type="submit" value="Submit" name="searchname">
+        </label>
+    </form>
+    <hr>
+{{ error }}
+{% for i in data %}
+    Number: {{ forloop.counter }}<br>
+    Recipe Name: <a href="/PandaXpress/RecipeDetail/?id={{ i.recipe_id }}">{{ i.recipe_name }}</a><br>
+    Recipes Description: {{ i.recipe_description }}<br>
+    Cooking Time: {{ i.cooking_time }} minutes <br>
+    <hr>
+{% endfor %}
 {% endblock body %}

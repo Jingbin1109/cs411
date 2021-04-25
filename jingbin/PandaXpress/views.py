@@ -181,7 +181,7 @@ def RecInd(request):
         return HttpResponse("Cannot do this operation.")
 
 def show_inven(request):
-    db = Inven.objects.raw('SELECT * FROM Inventory')
+    db = models.Inventory.objects.raw('SELECT * FROM Inventory')
     return (render(request, "show.html", {"data": db}))
 
 def update_inven(request):
@@ -237,8 +237,48 @@ def ShowRecipe(request):
         user_obj = models.Membership.objects.get(member_id=id)
     except:
         return redirect('/PandaXpress/signin')
-    db = models.Recipes.objects.raw('SELECT * FROM Recipes ORDER BY recipe_id DESC LIMIT 10 ')
-    return render(request, "recipeshow.html",{"data":db,'id': request.session['id'], 'USER': user_obj})
+    if request.method == 'GET':
+        get_name = request.GET.get("reci_name")
+        get_ind = request.GET.get("ind")
+        if get_name:
+            get_name = "%" + get_name + "%"
+            #db = Recipes.objects.filter(recipe_name__icontains= get_name)
+            db = models.Recipes.objects.raw("SELECT * FROM Recipes where recipe_name LIKE %s LIMIT 10", [get_name])
+            if db:
+                return render(request, "recipeshow.html", {"data": db,'USER':user_obj})
+            else:
+                return render(request, "recipeshow.html", {"error": "No Such a Recipe",'USER':user_obj})
+        elif (get_ind is not None)&(get_ind !=''):
+            ind_list = str(get_ind).split(',')
+            db = []
+            for i in ind_list:
+                ind_list1 = "%" + i+ "%"
+                db2 = models.Ingredients.objects.raw(
+                        "SELECT ingredient_id FROM Ingredients where ingredient_name LIKE %s",
+                        [ind_list1])
+                if db2:
+                    for j in db2:
+                        db = db+[j.ingredient_id]
+                # print(db2)
+                # db = db+re.findall("\d+",str(db2))
+                # print(db)
+            db = tuple(db)
+            print(db)
+            if (db!=()) & (db is not None) :
+                db1 = models.Recipes.objects.raw(
+                'SELECT Distinct r.recipe_id as recipe_id, r.recipe_name as recipe_name, r.recipe_description as recipe_description,r.cooking_time as cooking_time '
+                'FROM Recipes r natural join Recipe_Incl ri WHERE ri.ingredient_id in %s order by r.recipe_name', [db])
+
+                if db1:
+                    return render(request, "recipeshow.html", {"data": db1, "USER": user_obj})
+            return render(request, "recipeshow.html", {"error": "No recipes, please try others","USER":user_obj})
+        elif (get_ind is None) & (get_name is None):
+            db = models.Recipes.objects.raw('SELECT * FROM Recipes ORDER BY recipe_id DESC LIMIT 10 ')
+            return render(request, "recipeshow.html", {"data": db, 'id': request.session['id'], 'USER': user_obj})
+        else:
+            return render(request, "recipeshow.html", {"error": "Input could not be empty","USER":user_obj})
+    else:
+        return HttpResponse("Cannot do this operation.")
 
 def OwnRecipe(request):
     try:
@@ -248,7 +288,8 @@ def OwnRecipe(request):
     except:
         return redirect('/PandaXpress/signin')
     db = models.Recipes.objects.raw('SELECT * FROM Recipes WHERE recipe_creator = %s',[id])
-    return (render(request, "recipeshow.html", {"data": db, 'id': request.session['id'], 'USER': user_obj}))
+    return (render(request, "recipeown.html", {"data": db, 'id': request.session['id'], 'USER': user_obj}))
+
 def CreateRecipe(request):
     if request.method == 'POST':
         #recipe_id = 300000+ random.randint(0,9999)
