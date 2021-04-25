@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Inventory</title>
+</head>
+<body>
+     <form action="/inven/search/">
+        <label for="">
+            Input Inventory Name:<input type="text" name="name">
+            Input Database: <input type ="text" name = "gotem">
+        </label>
+        {# submit the sheet #}
+        <label for="">
+            <input type="submit" value="Submit">
+        </label>
+    </form>
+    <hr>
+    {{ error1 }}
+    {{ error }}
+
+
+</body>
+</html>
