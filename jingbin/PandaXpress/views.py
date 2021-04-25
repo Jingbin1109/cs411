@@ -178,7 +178,7 @@ def RecInd(request):
         return HttpResponse("Cannot do this operation.")
 
 def show_inven(request):
-    db = Inven.objects.raw('SELECT * FROM Inventory')
+    db = models.Inventory.objects.raw('SELECT * FROM Inventory')
     return (render(request, "show.html", {"data": db}))
 
 def update_inven(request):
@@ -214,10 +214,9 @@ def search(request):
 def CreateInven(request):
     if request.method == 'POST':
         inventory_name = request.POST.get("inventory_name")
-        inventory_id = request.POST.get("inventory_id")
         with connection.cursor() as cursor:
-            cursor.execute('INSERT into Inventory(inventory_id, inventory_name) VALUES (%s,%s)', [inventory_id, inventory_name])
-        return redirect("/inven/")
+            cursor.execute('INSERT into Inventory(Inventory_name) VALUES (%s)', [inventory_name])
+        return redirect("/PandaXpress/inven/")
     return render(request, "create_inven.html")
 
 def DeleteInven(request):
