@@ -130,6 +130,16 @@ def Follow_recipes(request):
             'WHERE m.member_id = %s order by r.recipe_name', [id])
     return render(request, "Follow_recipes.html", {"info": MoreRecipes,"USER":user_obj})
 
+# def get_ingredients(request):
+#     if request.method == "GET":
+#         id = request.GET.get('id')
+#         user_obj = models.Membership.objects.get(member_id=id)
+#         your_ingr = models.InventoryIncl.objects.raw(
+#             'SELECT ingredient_name FROM Inventory_Incl i LEFT OUTER JOIN Ingredients ing ON i.ingredient_id = ing.ingredient_id '
+#             'WHERE i.inventory_id = %s', [id]
+#         )
+#     return render(request,)
+
 def delete_follow(request):
     id1 = request.GET.get("id")
     id2 = request.GET.get("followid")
@@ -181,7 +191,11 @@ def RecInd(request):
         return HttpResponse("Cannot do this operation.")
 
 def show_inven(request):
-    db = models.Inventory.objects.raw('SELECT * FROM Inventory')
+    if request.method == 'GET':
+        id = request.GET.get('id')
+        db = models.Inventory.objects.raw(
+            'SELECT ing.ingredient_name FROM Inventory_Incl i LEFT OUTER JOIN Ingredients ing ON i.ingredient_id = ing.ingredient_id '
+            'WHERE i.inventory_id = %s;', [id])
     return (render(request, "show.html", {"data": db}))
 
 def update_inven(request):
@@ -279,6 +293,22 @@ def ShowRecipe(request):
             return render(request, "recipeshow.html", {"error": "Input could not be empty","USER":user_obj})
     else:
         return HttpResponse("Cannot do this operation.")
+
+def OwnInventory(request):
+    try:
+        id = request.session['id']
+        # request.GET.get('id')
+        user_obj = models.Membership.objects.get(member_id=id)
+    except:
+        return redirect('/PandaXpress/signin')
+    db = models.InventoryIncl.objects.raw(
+        "SELECT *"
+        " FROM Inventory_Incl inv LEFT OUTER JOIN Ingredients ing ON ing.ingredient_id = inv.ingredient_id "
+        "WHERE inv.inventory_id IN "
+        "(SELECT o.inventory_id FROM Membership m LEFT OUTER JOIN Owns o ON o.member_id = m.member_id "
+        "WHERE m.member_id = %s)"
+        ,[id])
+    return (render(request, "invenown.html", {"data": db, 'id': request.session['id'], 'USER': user_obj}))
 
 def OwnRecipe(request):
     try:

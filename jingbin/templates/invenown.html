@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Show Inventory
+{% endblock title %}
+
+{% block body %}
+    <table border='1'>
+        <thead class="thead">
+            <tr>
+                <th>Ingredient name</th>
+                <th>Ingredient amount </th>
+                <th>Ingredient Unit</th>
+                <th>Ingredient Added Date</th>
+                <th>Ingredient Expiry Date</th>>
+            </tr>
+        </thead>
+    {% for i in data %}
+        <tr>
+            <td>{{i.ingredient_name }} </td>
+            <td>{{i.ingredient_amount }}</td>
+            <td>{{i.ingredient_unit}}</td>
+            <td>{{i.ingredient_added_date}}</td>
+            <td>{{i.ingredient_expiry_date}}</td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endblock body %}

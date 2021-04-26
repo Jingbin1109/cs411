@@ -11,6 +11,8 @@ urlpatterns = [
     path("delete_store/",views.delete_store),
     path("recipe_ingredients/",views.RecInd),
 
+    path('invenown/show/', views.OwnInventory),
+
     path('inven/', views.show_inven, name = "show"),
     path('inven/create/', views.CreateInven, name="create"),
     path('inven/delete/', views.DeleteInven, name='delete'),
