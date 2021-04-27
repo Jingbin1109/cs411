@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add ingredient to your pantry</title>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* Style the body */
+body {
+  font-family: Arial;
+  margin: 0;
+}
+
+/* Header/Logo Title */
+.header {
+  padding: 60px;
+  text-align: center;
+  background: #1abc9c;
+  color: white;
+  font-size: 30px;
+}
+
+form { 
+margin: 0 auto; 
+width:250px;
+}
+
+/* Page Content */
+.content {padding:20px;}
+</style>
+</head>
+<div class="header">
+    <h1>Add to Inventory</h1>
+    <p>Choose the inventory you want to add to and the ingredient details</p>
+</div>
+<body>
+<form action="" method="post">
+    {% csrf_token %}
+    <p>
+        Inventory name <input align="center" type="text" name="inventory_name">
+    </p>
+    <p>
+        Inventory id <input align="center" type="number" name="id">
+    </p>
+    <p>
+        Ingredient <input align="center" type="text" name="ingre_name">
+    </p>
+    <p>
+        Amount <input align="center" type="number" name="amnt">
+    </p>
+    <p>
+        Units for Amount (e.g. liters, cups...) <input align="center" type="text" name="unit">
+    </p>
+    <p>
+        Expiry Date <input align = "center" type="date" name="expiry">
+    </p>
+    <p>
+        <button type="submit">Add ingredient to pantry</button>
+    </p>
+</form>
+    {{ success }}
+</body>
+</html>

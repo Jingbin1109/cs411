@@ -388,6 +388,9 @@ def UpdateRecipe(request):
     else:
         return render(request, "recipeupdate.html")
 
+def CreateOwnInven(request):
+    return render(request, "createingr.html")
+
 def SearchRecipe(request):
     if request.method == 'GET':
         get_name = request.GET.get("name")
