@@ -13,6 +13,7 @@ urlpatterns = [
 
     path('invenown/show/', views.OwnInventory),
     path('invenown/show/update/', views.UpdateOwnInven),
+    path('invenown/show/delete/', views.DeleteOwnInven),
 
     path('inven/', views.show_inven, name = "show"),
     path('inven/create/', views.CreateInven, name="create"),
