@@ -1,40 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Add ingredient to your pantry</title>
-    <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-/* Style the body */
-body {
-  font-family: Arial;
-  margin: 0;
-}
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Add to Inventory
+{% endblock title %}
 
-/* Header/Logo Title */
-.header {
-  padding: 60px;
-  text-align: center;
-  background: #1abc9c;
-  color: white;
-  font-size: 30px;
-}
-
-form { 
-margin: 0 auto; 
-width:250px;
-}
-
-/* Page Content */
-.content {padding:20px;}
-</style>
-</head>
-<div class="header">
-    <h1>Add to Inventory</h1>
-    <p>Choose the inventory you want to add to and the ingredient details</p>
-</div>
-<body>
+{% block body %}
 <form action="" method="post">
     {% csrf_token %}
     <p>
@@ -60,5 +30,6 @@ width:250px;
     </p>
 </form>
     {{ success }}
-</body>
-</html>
+<!-- </body> -->
+{% endblock body %}
+<!-- </html> -->
