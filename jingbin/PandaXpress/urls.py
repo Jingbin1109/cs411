@@ -12,6 +12,7 @@ urlpatterns = [
     path("recipe_ingredients/",views.RecInd),
 
     path('invenown/show/', views.OwnInventory),
+    path('invenown/show/update/', views.UpdateOwnInven),
 
     path('inven/', views.show_inven, name = "show"),
     path('inven/create/', views.CreateInven, name="create"),

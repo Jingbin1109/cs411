@@ -13,6 +13,7 @@
                 <th>Ingredient Unit</th>
                 <th>Ingredient Added Date</th>
                 <th>Ingredient Expiry Date</th>>
+                <th>Ingredient update</th>
             </tr>
         </thead>
     {% for i in data %}
@@ -22,6 +23,7 @@
             <td>{{i.ingredient_unit}}</td>
             <td>{{i.ingredient_added_date}}</td>
             <td>{{i.ingredient_expiry_date}}</td>
+            <td><a href='update/?id={{ i.inventory_incl_id }}'>Edit</a> | <a href='delete/?id={{ i.inventory_incl_id }}'>Delete</a> </td>
         </tr>
     {% endfor %}
     </table>

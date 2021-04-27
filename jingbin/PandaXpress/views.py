@@ -310,6 +310,20 @@ def OwnInventory(request):
         ,[id])
     return (render(request, "invenown.html", {"data": db, 'id': request.session['id'], 'USER': user_obj}))
 
+def UpdateOwnInven(request):
+    if request.method == 'POST':
+        inv_include_id = request.GET.get("id")
+        ingredient_amnt = request.POST.get("ingr_amnt")
+        unit = request.POST.get("unit")
+        expiry = request.POST.get("expiry")
+        with connection.cursor() as cursor:
+            cursor.execute(
+                'UPDATE Inventory_Incl SET ingredient_amount = %s, ingredient_unit = %s, ingredient_expiry_date = %s WHERE inventory_incl_id = %s ',
+                [ingredient_amnt, unit, expiry, inv_include_id])
+        return redirect("/PandaXpress/invenown/show/")
+    else:
+        return render(request, "invupdate.html")
+
 def OwnRecipe(request):
     try:
         id = request.session['id']

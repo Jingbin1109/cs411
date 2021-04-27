@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Update Inventory</title>
+</head>
+<body>
+<form action="" method="post">
+    {% csrf_token %}
+    <p>
+        <input type = "hidden" name = "id" value="{{ i.inventory_incl_id }}">
+    </p>
+    <p>
+        New ingredient amount:<input type="number" name="ingr_amnt" value="{{ i.ingredient_amount }}">
+    </p>
+    <p>
+        New ingredient unit: <input type="text" name="unit" value="{{ i.ingredient_unit}}">
+    </p>
+    <p>
+        New Expiry date: <input type="date" name="expiry" value="{{i.ingredient_expiry_date}}">
+    </p> 
+    <p>
+        <button type="submit">Update</button>
+    </p>
+</form>
+
+</body>
+</html>
