@@ -389,6 +389,11 @@ def UpdateRecipe(request):
         return render(request, "recipeupdate.html")
 
 def CreateOwnInven(request):
+    if request.method == 'POST':
+        inventory_name = request.POST.get("inventory_name")
+        inventory_id = request.POST.get("id")
+        ingredient_name = request.POST.get("ingre_name")
+        amnt = request.POST.get("amnt")
     return render(request, "createingr.html")
 
 def SearchRecipe(request):
