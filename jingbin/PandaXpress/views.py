@@ -422,3 +422,17 @@ def AdvancedSearch(request):
         render(request, "recipeadvance.html", {"error": "Wrong"})
 
 # End of Zheng's Code
+
+def storeprocedure(request):
+    try:
+        id = request.session['id']
+        # request.GET.get('id')
+        user_obj = models.Membership.objects.get(member_id=id)
+    except:
+        return redirect('/PandaXpress/signin')
+    with connection.cursor() as cursor:
+        cursor.callproc('FullCoverRecipe', [id])
+        data = cursor.fetchall()
+    print(data)
+    return render(request,"test.html",{"data":data,"USER":user_obj})
+
