@@ -394,7 +394,37 @@ def CreateOwnInven(request):
         inventory_id = request.POST.get("id")
         ingredient_name = request.POST.get("ingre_name")
         amnt = request.POST.get("amnt")
-    return render(request, "createingr.html")
+        unit = request.POST.get("unit")
+        expiry = request.POST.get("expiry")
+        get_today = datetime.date.today()
+        today = get_today.strftime("%Y-%m-%d")
+        #need to check whether we're given inventory_name or inventory_id
+        if inventory_name is not None:
+            identifier = models.Inventory.objects.raw("SELECT inventory_id FROM Inventory WHERE Inventory_name = %s", [inventory_name])
+        if inventory_id is not None:
+            identifier = inventory_id
+        if inventory_name is None and inventory_id is None:
+            return redirect("/PandaXpress/invenown/show")
+        #Check if ingredient exists in our database, if not then insert it and query it back out.
+        #TODO:
+        #TODO:
+        #TODO:
+        #TODO:
+        checker = models.Ingredients.objects.raw("SELECT * FROM Ingredients WHERE ingredient_name = %s",[ingredient_name])
+        if checker is None:
+            print("Ingredient doesn't exist, adding to our database.")
+            temp = models.Ingredients.objects.raw("INSERT INTO Ingredients(ingredient_name) VALUES (%s)", [ingredient_name])
+        #TODO: For Kanin, this part is problematic
+        #TODO:
+        #TODO:
+        ingr_id = models.Ingredients.objects.raw("SELECT ingredient_id FROM Ingredients WHERE ingredient_name = %s",[ingredient_name])
+        #add ingredient to our inventory_incl
+        with connection.cursor() as cursor:
+            cursor.execute('INSERT INTO Inventory_Incl(inventory_id, ingredient_id, ingredient_amount, ingredient_unit, ingredient_added_date, ingredient_expiry_date) '
+                            'VALUES(%s, %s, %s, %s, %s, %s)', [identifier, ingr_id, amnt, unit, today, expiry])
+        return redirect("/PandaXpress/invenown/show")
+    else:
+        return render(request, "createingr.html")
 
 def SearchRecipe(request):
     if request.method == 'GET':
