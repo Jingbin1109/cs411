@@ -401,7 +401,7 @@ def UpdateOwnInven(request):
 def DeleteOwnInven(request):
     id = request.GET.get("id")
     with connection.cursor() as cursor:
-        cursor.execute('DELETE FROM pandaxpress.Inventory_Incl WHERE inventory_incl_id = %s', [id])
+        cursor.execute('DELETE FROM Inventory_Incl WHERE inventory_incl_id = %s', [id])
     return redirect('/PandaXpress/invenown/show/')
 
 def OwnRecipe(request):
