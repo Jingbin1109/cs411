@@ -16,11 +16,6 @@ def log_in(request):
             get_pwd = request.POST.get("pwd")
             if (get_user is not None) & (get_user != ''):
                 USER = models.Membership.objects.raw("SELECT * FROM Membership where username=%s", [get_user])
-                # sql = "SELECT * FROM Membership where username="+"'"+str(get_user)+"'"
-                # cursor = connection.cursor()
-                # cursor.execute(sql)
-                # db = cursor.fetchall()
-                # print("db", db)
                 if USER:
                     if str(USER[0].pwd)==get_pwd:
                         request.session['id'] = USER[0].member_id
@@ -168,16 +163,6 @@ def Follow_recipes(request):
             'join (SELECT* FROM Recipes WHERE cooking_time < 100 ) AS r on s.recipe_id = r.recipe_id '
             'WHERE m.member_id = %s order by r.recipe_name', [id])
     return render(request, "Follow_recipes.html", {"info": MoreRecipes,"USER":user_obj})
-
-# def get_ingredients(request):
-#     if request.method == "GET":
-#         id = request.GET.get('id')
-#         user_obj = models.Membership.objects.get(member_id=id)
-#         your_ingr = models.InventoryIncl.objects.raw(
-#             'SELECT ingredient_name FROM Inventory_Incl i LEFT OUTER JOIN Ingredients ing ON i.ingredient_id = ing.ingredient_id '
-#             'WHERE i.inventory_id = %s', [id]
-#         )
-#     return render(request,)
 
 def delete_follow(request):
     id1 = request.GET.get("id")
@@ -490,15 +475,8 @@ def CreateOwnInven(request):
         if (inventory_name =='')& (inventory_id ==''):
             return redirect("/PandaXpress/invenown/show")
         #Check if ingredient exists in our database, if not then insert it and query it back out.
-        #TODO:
-        #TODO:
-        #TODO:
-        #TODO:
         checker = models.Ingredients.objects.raw("SELECT * FROM Ingredients WHERE ingredient_name = %s",[ingredient_name])
         if checker:
-            #TODO: For Kanin, this part is problematic
-            #TODO:
-            #TODO:
             ingr_id = models.Ingredients.objects.raw("SELECT ingredient_id FROM Ingredients WHERE ingredient_name = %s",[ingredient_name])
             #add ingredient to our inventory_incl
             ingr_id= int(re.findall("\d+", str(ingr_id[0]))[0])
