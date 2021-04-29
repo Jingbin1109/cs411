@@ -158,37 +158,36 @@ def RecInd(request):
     id = request.session['id']
     # request.GET.get('id')
     user_obj = models.Membership.objects.get(member_id=id)
-    if request.method == "GET":
-        # get the title from front end
-        get_ind = request.GET.get("ind")
-        if (get_ind is not None)&(get_ind !=''):
-            ind_list = str(get_ind).split(',')
-            db = []
-            for i in ind_list:
-                ind_list1 = "%" + i+ "%"
-                db2 = models.Ingredients.objects.raw(
-                        "SELECT ingredient_id FROM Ingredients where ingredient_name LIKE %s",
-                        [ind_list1])
-                if db2:
-                    for j in db2:
-                        db = db+[j.ingredient_id]
-                # print(db2)
-                # db = db+re.findall("\d+",str(db2))
-                # print(db)
-            db = tuple(db)
+    get_ind = request.session['ingredients_own']
+    print(get_ind)
+    if (get_ind is not None) & (get_ind != ''):
+        ind_list = str(get_ind).split(',')
+        db = []
+        for i in ind_list:
+            ind_list1 = "%" + i + "%"
+            db2 = models.Ingredients.objects.raw(
+                "SELECT ingredient_id FROM Ingredients where ingredient_name LIKE %s",
+                [ind_list1])
+            if db2:
+                for j in db2:
+                    db = db + [j.ingredient_id]
+            # print(db2)
+            # db = db+re.findall("\d+",str(db2))
+            # print(db)
+        db = tuple(db)
+        if (db != ()) & (db is not None):
             db1 = models.Recipes.objects.raw(
-            'SELECT Distinct r.recipe_id as recipe_id, r.recipe_name as recipe_name, r.recipe_description as recipe_description,r.cooking_time as cooking_time '
-            'FROM Recipes r natural join Recipe_Incl ri WHERE ri.ingredient_id in %s order by r.recipe_name', [db])
-            if db!=[] :
-                return render(request,"RecInd.html",{"data":db1,"USER":user_obj})
-            else:
-                return render(request, "RecInd.html", {"error": "No recipes, please try others","USER":user_obj})
-        elif get_ind is None:
-            return render(request, "RecInd.html",{"error":"Please enter ingredient names","USER":user_obj})
-        else:
-            return render(request,"RecInd.html",{"error":"Please enter correct ingredient names","USER":user_obj})
+                'SELECT Distinct r.recipe_id as recipe_id, r.recipe_name as recipe_name, r.recipe_description as recipe_description,r.cooking_time as cooking_time '
+                'FROM Recipes r natural join Recipe_Incl ri WHERE ri.ingredient_id in %s order by r.recipe_name', [db])
+
+            if db1:
+                return render(request, "RecInd.html", {"data": db1, "USER": user_obj})
+        return render(request, "recipeshow.html", {"error": "No recipes found", "USER": user_obj})
+    elif get_ind is None:
+        return render(request, "RecInd.html", {"error": "Something Wrong", "USER": user_obj})
     else:
-        return HttpResponse("Cannot do this operation.")
+        return render(request, "RecInd.html", {"error": "Your inventory is empty", "USER": user_obj})
+
 
 def show_inven(request):
     if request.method == 'GET':
@@ -229,13 +228,33 @@ def search(request):
     return render(request, "search_inven.html")
 
 def CreateInven(request):
+    try:
+        id = request.session['id']
+        # request.GET.get('id')
+        user_obj = models.Membership.objects.get(member_id=id)
+    except:
+        return redirect('/PandaXpress/signin')
+    inv = models.Membership.objects.raw(
+        "SELECT * FROM Membership m RIGHT OUTER join Owns o on m.member_id=o.member_id WHERE o.member_id = %s", [id])
+    if inv:
+        return redirect("/PandaXpress/invenown/show/")
     if request.method == 'POST':
         inventory_name = request.POST.get("inventory_name")
-        inventory_id = request.POST.get("inventory_id")
-        with connection.cursor() as cursor:
-            cursor.execute('INSERT into Inventory(inventory_id, inventory_name) VALUES (%s,%s)', [inventory_id, inventory_name])
-        return redirect("/inven/")
-    return render(request, "create_inven.html")
+        db = models.Inventory.objects.raw(
+            "SELECT * FROM Inventory WHERE inventory_name = %s",
+            [inventory_name])
+        if db:
+            return render(request,"create_inven.html",{"error":"The name has been used"})
+        else:
+            with connection.cursor() as cursor:
+                cursor.execute('INSERT into Inventory(inventory_name) VALUES (%s)', [inventory_name])
+            inv_id = models.Inventory.objects.raw("SELECT inventory_id FROM Inventory WHERE inventory_name = %s",[inventory_name])
+            print(inv_id[0])
+            inv_id = int(re.findall("\d+", str(inv_id[0]))[0])
+            with connection.cursor() as cursor:
+                cursor.execute('INSERT into Owns(member_id, inventory_id) VALUES (%s,%s)',[id,inv_id])
+            return redirect("/PandaXpress/invenown/show")
+    return render(request, "create_inven.html",{"error":"You have no inventory now, try to create one","USER":user_obj})
 
 def DeleteInven(request):
     id = request.GET.get("id")
@@ -301,14 +320,29 @@ def OwnInventory(request):
         user_obj = models.Membership.objects.get(member_id=id)
     except:
         return redirect('/PandaXpress/signin')
-    db = models.InventoryIncl.objects.raw(
-        "SELECT *"
-        " FROM Inventory_Incl inv LEFT OUTER JOIN Ingredients ing ON ing.ingredient_id = inv.ingredient_id "
-        "WHERE inv.inventory_id IN "
-        "(SELECT o.inventory_id FROM Membership m LEFT OUTER JOIN Owns o ON o.member_id = m.member_id "
-        "WHERE m.member_id = %s)"
-        ,[id])
-    return (render(request, "invenown.html", {"data": db, 'id': request.session['id'], 'USER': user_obj}))
+    ingredient_string = ""
+    inv = models.Membership.objects.raw("SELECT * FROM Membership m RIGHT OUTER join Owns o on m.member_id=o.member_id WHERE o.member_id = %s",[id])
+    if inv:
+        db = models.InventoryIncl.objects.raw(
+            "SELECT *"
+            " FROM Inventory_Incl inv LEFT OUTER JOIN Ingredients ing ON ing.ingredient_id = inv.ingredient_id "
+            "WHERE inv.inventory_id IN "
+            "(SELECT o.inventory_id FROM Membership m LEFT OUTER JOIN Owns o ON o.member_id = m.member_id "
+            "WHERE m.member_id = %s)"
+            , [id])
+        if db:
+            for k in range(len(db)):
+                ingredient_string = ingredient_string + str(db[k].ingredient_name)
+            request.session['ingredients_own'] = re.sub(r' ', ',', ingredient_string)
+            print(request.session['ingredients_own'])
+            return (render(request, "invenown.html", {"data": db, 'id': request.session['id'], 'USER': user_obj}))
+        else:
+            request.session['ingredients_own'] = re.sub(r' ', ',', ingredient_string)
+            print(request.session['ingredients_own'])
+            return render(request,"invenown.html",{"error": "Empty",'USER':user_obj})
+    else:
+        return redirect('/PandaXpress/inven/create/')
+
 
 def UpdateOwnInven(request):
     if request.method == 'POST':
@@ -389,6 +423,12 @@ def UpdateRecipe(request):
         return render(request, "recipeupdate.html")
 
 def CreateOwnInven(request):
+    try:
+        id = request.session['id']
+        # request.GET.get('id')
+        user_obj = models.Membership.objects.get(member_id=id)
+    except:
+        return redirect('/PandaXpress/signin')
     if request.method == 'POST':
         inventory_name = request.POST.get("inventory_name")
         inventory_id = request.POST.get("id")
@@ -424,7 +464,7 @@ def CreateOwnInven(request):
                             'VALUES(%s, %s, %s, %s, %s, %s)', [identifier, ingr_id, amnt, unit, today, expiry])
         return redirect("/PandaXpress/invenown/show")
     else:
-        return render(request, "createingr.html")
+        return render(request, "createingr.html",{"USER":user_obj})
 
 def SearchRecipe(request):
     if request.method == 'GET':
@@ -468,6 +508,15 @@ def storeprocedure(request):
     with connection.cursor() as cursor:
         cursor.callproc('FullCoverRecipe', [id])
         data = cursor.fetchall()
-    print(data)
-    return render(request,"test.html",{"data":data,"USER":user_obj})
+    recipes_name = []
+    recipes_id = []
+    for k in range(len(data)):
+        recipes_name = recipes_name + [data[k][1]]
+        recipes_id = recipes_id +[data[k][0]]
+    recipes_id = list(set(recipes_id))
+    recipes_name = list(set(recipes_name))
+    recipes=[]
+    for k in range(len(recipes_id)):
+        recipes = recipes+[[recipes_id[k],recipes_name[k]]]
+    return render(request, "FullCoverRecipe.html", {"data":data, "recipe":recipes, "USER":user_obj})
 

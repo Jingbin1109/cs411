@@ -28,5 +28,5 @@ urlpatterns = [
     path('recipe/update/',views.UpdateRecipe,name = 'update'),
     path('recipe/delete/',views.DeleteRecipe,name = 'delete'),
     path('recipe/advance',views.AdvancedSearch,name = 'advance'),
-    path('recipe/test',views.storeprocedure),
+    path('recipe/popular',views.storeprocedure),
 ]

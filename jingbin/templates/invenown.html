@@ -5,26 +5,35 @@
 {% endblock title %}
 
 {% block body %}
-    <table border='1'>
+    <br><br>
+    <table border='1' align="center">
         <thead class="thead">
-            <tr>
-                <th>Ingredient name</th>
-                <th>Ingredient amount </th>
-                <th>Ingredient Unit</th>
-                <th>Ingredient Added Date</th>
-                <th>Ingredient Expiry Date</th>>
-                <th>Ingredient update</th>
-            </tr>
-        </thead>
-    {% for i in data %}
         <tr>
-            <td>{{i.ingredient_name }} </td>
-            <td>{{i.ingredient_amount }}</td>
-            <td>{{i.ingredient_unit}}</td>
-            <td>{{i.ingredient_added_date}}</td>
-            <td>{{i.ingredient_expiry_date}}</td>
-            <td><a href='update/?id={{ i.inventory_incl_id }}'>Edit</a> | <a href='delete/?id={{ i.inventory_incl_id }}'>Delete</a> </td>
+            <th>Ingredient name</th>
+            <th>Ingredient amount</th>
+            <th>Ingredient Unit</th>
+            <th>Ingredient Added Date</th>
+            <th>Ingredient Expiry Date</th>
+            <th>Ingredient update</th>
         </tr>
-    {% endfor %}
+        </thead>
+        {% for i in data %}
+            <tr>
+                <td>{{ i.ingredient_name }} </td>
+                <td>{{ i.ingredient_amount }}</td>
+                <td>{{ i.ingredient_unit }}</td>
+                <td>{{ i.ingredient_added_date }}</td>
+                <td>{{ i.ingredient_expiry_date }}</td>
+                <td><a href='update/?id={{ i.inventory_incl_id }}'>Edit</a> | <a
+                        href='delete/?id={{ i.inventory_incl_id }}'>Delete</a></td>
+            </tr>
+        {% endfor %}
     </table>
+    <center>{{ error }}</center>
+    <br>
+    <br>
+    <center><a href="/PandaXpress/invenown/create/" class="btn btn-default">Add new ingredients</a></center>
+    <br>
+    <br>
+    <center><a href="/PandaXpress/recipe_ingredients/" class="btn btn-default">Find match recipes</a></center>
 {% endblock body %}

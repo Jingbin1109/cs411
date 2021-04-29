@@ -6,7 +6,7 @@
 {% block body %}
     <h1> Ingredients to buy for popular recipes </h1>
     <h3>Popular recipes:</h3>
-    {% for i in data %}}
+    {% for i in recipe %}
         Recipe Name: <a href="/PandaXpress/RecipeDetail/?id={{ i.0 }}">{{ i.1 }}</a><br>
     {% endfor %}
     <hr>

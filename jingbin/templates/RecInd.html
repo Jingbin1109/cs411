@@ -5,15 +5,6 @@
 {% endblock title %}
 
 {% block body %}
-<form action="/PandaXpress/recipe_ingredients">
-    <label for="">
-        input the ingredients of recipes you want:<input type="text" name="ind" placeholder="milk,potato">
-    </label>
-    {# submit the sheet #}
-    <label for="">
-        <input type="submit" value="Submit">
-    </label>
-</form>
 <hr>
 {{ error }}
 {% for i in data %}

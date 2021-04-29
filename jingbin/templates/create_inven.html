@@ -1,10 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Create_Inventory</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    CreateInv
+{% endblock title %}
+{% block body %}
+    <h2>{{ error }}</h2>
+    <div class="main">
 <form action="" method="POST">
     {% csrf_token %}
     <p>
@@ -15,5 +16,5 @@
     </p>
 </form>
     {{ success }}
-</body>
-</html>
+    </div>
+{% endblock body %}
