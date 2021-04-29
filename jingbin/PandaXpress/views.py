@@ -89,6 +89,29 @@ def User(request):
                 HttpResponse("No such user.")
         elif "addinv" in request.POST:
             id = request.session['id']
+            # request.GET.get('id')
+            # search
+            user_obj = models.Membership.objects.get(member_id=id)
+            # user_obj_list = models.Membership.objects.all()
+            follow_obj = models.Membership.objects.raw(
+                'SELECT b.member_id, b.username as username '
+                'FROM Membership b right join Follow a on a.following_id = b.member_id where a.member_id = %s', [id])
+            # models.Follow.objects.get(member_id=id)
+            store_obj = models.Recipes.objects.raw(
+                'SELECT b.recipe_id, b.recipe_name as recipe_name '
+                'FROM Recipes b right join Store a on a.recipe_id = b.recipe_id where a.member_id = %s', [id])
+            # models.Store.objects.get(member_id=id)
+            inventory_obj = models.Inventory.objects.raw(
+                'SELECT b.inventory_id as inventory_id, b.inventory_name as inventory_name '
+                'FROM Inventory b right join Owns a on b.inventory_id = a.inventory_id where a.member_id = %s', [id])
+            # follow_obj_list = models.Follow.objects.all()
+            if inventory_obj:
+                return render(request,'user.html',
+                      {'id': request.session['id'],"USER": user_obj,
+                       # "user_obj_list": user_obj_list,
+                       "follow_obj": follow_obj,
+                       "store_obj": store_obj,
+                       "inventory_obj": inventory_obj,"error_inv":"You already have one inventory"})
             newinv = request.POST.get('newinv')
             try:
                 newinv1 = models.Inventory.objects.get(inventory_id=newinv)
@@ -250,10 +273,10 @@ def CreateInven(request):
         user_obj = models.Membership.objects.get(member_id=id)
     except:
         return redirect('/PandaXpress/signin')
-    # inv = models.Membership.objects.raw(
-    #     "SELECT * FROM Membership m RIGHT OUTER join Owns o on m.member_id=o.member_id WHERE o.member_id = %s", [id])
-    # if inv:
-    #     return redirect("/PandaXpress/invenown/show/")
+    inv = models.Membership.objects.raw(
+        "SELECT * FROM Membership m RIGHT OUTER join Owns o on m.member_id=o.member_id WHERE o.member_id = %s", [id])
+    if inv:
+        return redirect("/PandaXpress/invenown/show/")
     if request.method == 'POST':
         inventory_name = request.POST.get("inventory_name")
         db = models.Inventory.objects.raw(
@@ -270,12 +293,8 @@ def CreateInven(request):
             with connection.cursor() as cursor:
                 cursor.execute('INSERT into Owns(member_id, inventory_id) VALUES (%s,%s)',[id,inv_id])
             return redirect("/PandaXpress/invenown/show")
-    inv = models.Membership.objects.raw(
-        "SELECT * FROM Membership m RIGHT OUTER join Owns o on m.member_id=o.member_id WHERE o.member_id = %s", [id])
-    if inv:
-        return render(request, "create_inven.html",{"error":"Create new inventory","USER":user_obj})
     else:
-        return render(request, "create_inven.html",{"error":"You have no inventory now, try to create one","USER":user_obj})
+        return render(request, "create_inven.html",{"error":"You have no inventory now, try to create one or add existing one in your profile","USER":user_obj})
 
 def DeleteInven(request):
     id = request.GET.get("id")
@@ -462,9 +481,13 @@ def CreateOwnInven(request):
         #need to check whether we're given inventory_name or inventory_id
         if inventory_name is not None:
             identifier = models.Inventory.objects.raw("SELECT inventory_id FROM Inventory WHERE Inventory_name = %s", [inventory_name])
-        if inventory_id is not None:
+            if identifier:
+                identifier = int(re.findall("\d+", str(identifier[0]))[0])
+            else:
+                return redirect("/PandaXpress/invenown/show")
+        if inventory_id != '':
             identifier = inventory_id
-        if inventory_name is None and inventory_id is None:
+        if (inventory_name =='')& (inventory_id ==''):
             return redirect("/PandaXpress/invenown/show")
         #Check if ingredient exists in our database, if not then insert it and query it back out.
         #TODO:
@@ -472,18 +495,31 @@ def CreateOwnInven(request):
         #TODO:
         #TODO:
         checker = models.Ingredients.objects.raw("SELECT * FROM Ingredients WHERE ingredient_name = %s",[ingredient_name])
-        if checker is None:
+        if checker:
+            #TODO: For Kanin, this part is problematic
+            #TODO:
+            #TODO:
+            ingr_id = models.Ingredients.objects.raw("SELECT ingredient_id FROM Ingredients WHERE ingredient_name = %s",[ingredient_name])
+            #add ingredient to our inventory_incl
+            ingr_id= int(re.findall("\d+", str(ingr_id[0]))[0])
+            with connection.cursor() as cursor:
+                cursor.execute('INSERT INTO Inventory_Incl(inventory_id, ingredient_id, ingredient_amount, ingredient_unit, ingredient_added_date, ingredient_expiry_date) '
+                                'VALUES(%s, %s, %s, %s, %s, %s)', [identifier, ingr_id, amnt, unit, today, expiry])
+            return redirect("/PandaXpress/invenown/show")
+        else:
             print("Ingredient doesn't exist, adding to our database.")
-            temp = models.Ingredients.objects.raw("INSERT INTO Ingredients(ingredient_name) VALUES (%s)", [ingredient_name])
-        #TODO: For Kanin, this part is problematic
-        #TODO:
-        #TODO:
-        ingr_id = models.Ingredients.objects.raw("SELECT ingredient_id FROM Ingredients WHERE ingredient_name = %s",[ingredient_name])
-        #add ingredient to our inventory_incl
-        with connection.cursor() as cursor:
-            cursor.execute('INSERT INTO Inventory_Incl(inventory_id, ingredient_id, ingredient_amount, ingredient_unit, ingredient_added_date, ingredient_expiry_date) '
-                            'VALUES(%s, %s, %s, %s, %s, %s)', [identifier, ingr_id, amnt, unit, today, expiry])
-        return redirect("/PandaXpress/invenown/show")
+            with connection.cursor() as cursor:
+                cursor.execute("INSERT INTO Ingredients(ingredient_name) VALUES (%s)",
+                                                  [ingredient_name])
+            ingr_id = models.Ingredients.objects.raw("SELECT ingredient_id FROM Ingredients WHERE ingredient_name = %s",
+                                                     [ingredient_name])
+            # add ingredient to our inventory_incl
+            ingr_id = int(re.findall("\d+", str(ingr_id[0]))[0])
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'INSERT INTO Inventory_Incl(inventory_id, ingredient_id, ingredient_amount, ingredient_unit, ingredient_added_date, ingredient_expiry_date) '
+                    'VALUES(%s, %s, %s, %s, %s, %s)', [identifier, ingr_id, amnt, unit, today, expiry])
+            return redirect("/PandaXpress/invenown/show")
     else:
         return render(request, "createingr.html",{"USER":user_obj})
 
