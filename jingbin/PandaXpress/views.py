@@ -455,25 +455,17 @@ def CreateOwnInven(request):
     except:
         return redirect('/PandaXpress/signin')
     if request.method == 'POST':
-        inventory_name = request.POST.get("inventory_name")
-        inventory_id = request.POST.get("id")
+        inventory_id = models.Inventory.objects.raw("SELECT inventory_id FROM Owns WHERE member_id = %s", [id])
+        inventory_id = int(re.findall("\d+", str(inventory_id[0]))[0])
         ingredient_name = request.POST.get("ingre_name")
         amnt = request.POST.get("amnt")
         unit = request.POST.get("unit")
         expiry = request.POST.get("expiry")
         get_today = datetime.date.today()
         today = get_today.strftime("%Y-%m-%d")
-        #need to check whether we're given inventory_name or inventory_id
-        if inventory_name is not None:
-            identifier = models.Inventory.objects.raw("SELECT inventory_id FROM Inventory WHERE Inventory_name = %s", [inventory_name])
-            if identifier:
-                identifier = int(re.findall("\d+", str(identifier[0]))[0])
-            else:
-                return redirect("/PandaXpress/invenown/show")
-        if inventory_id != '':
-            identifier = inventory_id
-        if (inventory_name =='')& (inventory_id ==''):
+        if inventory_id == '':
             return redirect("/PandaXpress/invenown/show")
+        identifier = inventory_id
         #Check if ingredient exists in our database, if not then insert it and query it back out.
         checker = models.Ingredients.objects.raw("SELECT * FROM Ingredients WHERE ingredient_name = %s",[ingredient_name])
         if checker:
@@ -483,6 +475,7 @@ def CreateOwnInven(request):
             with connection.cursor() as cursor:
                 cursor.execute('INSERT INTO Inventory_Incl(inventory_id, ingredient_id, ingredient_amount, ingredient_unit, ingredient_added_date, ingredient_expiry_date) '
                                 'VALUES(%s, %s, %s, %s, %s, %s)', [identifier, ingr_id, amnt, unit, today, expiry])
+                cursor.execute("DELETE FROM Inventory_Incl WHERE ingredient_expiry_date = '1800-01-01'")
             return redirect("/PandaXpress/invenown/show")
         else:
             print("Ingredient doesn't exist, adding to our database.")
@@ -497,6 +490,7 @@ def CreateOwnInven(request):
                 cursor.execute(
                     'INSERT INTO Inventory_Incl(inventory_id, ingredient_id, ingredient_amount, ingredient_unit, ingredient_added_date, ingredient_expiry_date) '
                     'VALUES(%s, %s, %s, %s, %s, %s)', [identifier, ingr_id, amnt, unit, today, expiry])
+                cursor.execute("DELETE FROM Inventory_Incl WHERE ingredient_expiry_date = '1800-01-01'")
             return redirect("/PandaXpress/invenown/show")
     else:
         return render(request, "createingr.html",{"USER":user_obj})
