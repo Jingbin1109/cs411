@@ -1,9 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Update Inventory</title>
-</head>
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Update items on your inventory
+{% endblock title %}
+
+{% block body %}
+    <div class="main">
 <body>
 <form action="" method="post">
     {% csrf_token %}
@@ -11,18 +13,17 @@
         <input type = "hidden" name = "id" value="{{ i.inventory_incl_id }}">
     </p>
     <p>
-        New ingredient amount:<input type="number" name="ingr_amnt" value="{{ i.ingredient_amount }}">
+        New ingredient amount:<input align="center" type="number" name="ingr_amnt" value="{{ i.ingredient_amount }}">
     </p>
     <p>
-        New ingredient unit: <input type="text" name="unit" value="{{ i.ingredient_unit}}">
+        New ingredient unit: <input align="center" type="text" name="unit" value="{{ i.ingredient_unit}}">
     </p>
     <p>
-        New Expiry date: <input type="date" name="expiry" value="{{i.ingredient_expiry_date}}">
+        New Expiry date: <input align="center" type="date" name="expiry" value="{{i.ingredient_expiry_date}}">
     </p> 
     <p>
         <button type="submit">Update</button>
     </p>
 </form>
 
-</body>
-</html>
+{% endblock body %}
