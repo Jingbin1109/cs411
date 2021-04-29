@@ -301,7 +301,7 @@ def ShowRecipe(request):
         if get_name:
             get_name = "%" + get_name + "%"
             #db = Recipes.objects.filter(recipe_name__icontains= get_name)
-            db = models.Recipes.objects.raw("SELECT * FROM Recipes where recipe_name LIKE %s LIMIT 10", [get_name])
+            db = models.Recipes.objects.raw("SELECT * FROM Recipes where recipe_name LIKE %s", [get_name])
             if db:
                 return render(request, "recipeshow.html", {"data": db,'USER':user_obj})
             else:
@@ -356,9 +356,13 @@ def OwnInventory(request):
             "WHERE m.member_id = %s)"
             , [id])
         if db:
+            ingredient_string = ""
             for k in range(len(db)):
-                ingredient_string = ingredient_string + str(db[k].ingredient_name)
-            request.session['ingredients_own'] = re.sub(r' ', ',', ingredient_string)
+                ingredient_string = ingredient_string +","+str(db[k].ingredient_name)
+                # print(str(db[k].ingredient_name))
+            # print(ingredient_string)
+            ingredient_string = re.sub(r' ', ',', ingredient_string)
+            request.session['ingredients_own'] = re.sub(r'^,', '', ingredient_string)
             print(request.session['ingredients_own'])
             return (render(request, "invenown.html", {"data": db, 'id': request.session['id'], 'USER': user_obj}))
         else:
