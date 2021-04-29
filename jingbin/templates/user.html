@@ -59,10 +59,21 @@ Recipes Liked:
 Inventory:
 <br>
     {% for i in inventory_obj %}
-        <a href="/PandaXpress/invenown/show">{{ i.inventory_name }}
+        {{ i.inventory_id }}
+        <a href="/PandaXpress/invenown/show">{{ i.inventory_name }}</a>
         <br>
     {% endfor %}
 <br>
+<form action="" method="post">
+    {% csrf_token %}
+
+    <p>
+        Inventory id：
+        <input type="text" name="newinv">
+        <button type="submit" class="btn" name="addinv">Add new inventory</button>
+    </p>
+    {{ error }}
+</form>
 <hr>
 <form action="" method="post">
     {% csrf_token %}

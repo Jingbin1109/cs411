@@ -87,6 +87,22 @@ def User(request):
                 return redirect('/PandaXpress/user')
             else:
                 HttpResponse("No such user.")
+        elif "addinv" in request.POST:
+            id = request.session['id']
+            newinv = request.POST.get('newinv')
+            try:
+                newinv1 = models.Inventory.objects.get(inventory_id=newinv)
+            except:
+                newinv1 = None
+            if newinv1 is not None:
+                newinv2 = newinv1.inventory_id
+                with connection.cursor() as cursor:
+                    cursor.execute('INSERT into Owns(member_id,inventory_id) VALUES (%s, %s)', [id, newinv2])
+                # refresh
+                request.session['id'] = id
+                return redirect('/PandaXpress/user')
+            else:
+                HttpResponse("No such inventory.")
         elif "logout" in request.POST:
             return redirect('/PandaXpress/signin')
         else:
@@ -234,17 +250,17 @@ def CreateInven(request):
         user_obj = models.Membership.objects.get(member_id=id)
     except:
         return redirect('/PandaXpress/signin')
-    inv = models.Membership.objects.raw(
-        "SELECT * FROM Membership m RIGHT OUTER join Owns o on m.member_id=o.member_id WHERE o.member_id = %s", [id])
-    if inv:
-        return redirect("/PandaXpress/invenown/show/")
+    # inv = models.Membership.objects.raw(
+    #     "SELECT * FROM Membership m RIGHT OUTER join Owns o on m.member_id=o.member_id WHERE o.member_id = %s", [id])
+    # if inv:
+    #     return redirect("/PandaXpress/invenown/show/")
     if request.method == 'POST':
         inventory_name = request.POST.get("inventory_name")
         db = models.Inventory.objects.raw(
             "SELECT * FROM Inventory WHERE inventory_name = %s",
             [inventory_name])
         if db:
-            return render(request,"create_inven.html",{"error":"The name has been used"})
+            return render(request,"create_inven.html",{"error":"The name has been used, you can go to your profile to add inventory others share with you"})
         else:
             with connection.cursor() as cursor:
                 cursor.execute('INSERT into Inventory(inventory_name) VALUES (%s)', [inventory_name])
@@ -254,7 +270,12 @@ def CreateInven(request):
             with connection.cursor() as cursor:
                 cursor.execute('INSERT into Owns(member_id, inventory_id) VALUES (%s,%s)',[id,inv_id])
             return redirect("/PandaXpress/invenown/show")
-    return render(request, "create_inven.html",{"error":"You have no inventory now, try to create one","USER":user_obj})
+    inv = models.Membership.objects.raw(
+        "SELECT * FROM Membership m RIGHT OUTER join Owns o on m.member_id=o.member_id WHERE o.member_id = %s", [id])
+    if inv:
+        return render(request, "create_inven.html",{"error":"Create new inventory","USER":user_obj})
+    else:
+        return render(request, "create_inven.html",{"error":"You have no inventory now, try to create one","USER":user_obj})
 
 def DeleteInven(request):
     id = request.GET.get("id")
