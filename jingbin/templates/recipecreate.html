@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Create_Recipe</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    CreateRec
+{% endblock title %}
+{% block body %}
 <form action="" method="post">
     {% csrf_token %}
     <p>
@@ -18,5 +17,4 @@
     </p>
 </form>
     {{ success }}
-</body>
-</html>
+{% endblock body %}
