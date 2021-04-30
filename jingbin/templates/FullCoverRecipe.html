@@ -7,7 +7,7 @@
     <h1> Ingredients to buy for popular recipes </h1>
     <h3>Popular recipes:</h3>
     {% for i in data %}
-        Recipe Name: <a href="/PandaXpress/RecipeDetail/?id={{ i.0 }}">{{ i.1 }}</a><br>
+        Recipe Name: <a href="/PandaXpress/recipe/detail/?id={{ i.0 }}">{{ i.1 }}</a><br>
         Ingredient Name you do not have : {{ i.2 }}<br>
         <br>
         <hr>

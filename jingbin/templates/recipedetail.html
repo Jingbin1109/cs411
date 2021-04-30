@@ -9,16 +9,19 @@
     {% csrf_token %}
     {% for i in data %}
         <p>
-            recipe name:{{ i.0 }}
+            recipe name: {{ i.0 }}
         </p>
         <p>
             recipe description: {{ i.1 }}
         </p>
         <p>
-            cooking time:{{ i.2 }}
+            cooking time: {{ i.2 }}
         </p>
         <p>
-            ingredients:{{ i.3 }}
+            ingredients: {{ i.3 }}
+        </p>
+        <p>
+            Steps: {{ i.4 }}
         </p>
     {% endfor %}
 </form>

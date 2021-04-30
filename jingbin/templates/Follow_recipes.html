@@ -14,7 +14,7 @@
  <tbody>
  {% for i in info %}
      Number: {{ forloop.counter }}<br>
-     Recipe Name: <a href="/PandaXpress/Recipe/?id={{ i.recipe_id }}">{{ i.recipe_name }}</a><br>
+     Recipe Name: <a href="/PandaXpress/recipe/detail/?id={{ i.recipe_id }}">{{ i.recipe_name }}</a><br>
      Recipes Description: {{ i.recipe_description }}<br>
      Cooking Time: {{ i.cooking_time }} minutes <br>
      <hr>
