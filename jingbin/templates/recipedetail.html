@@ -5,20 +5,22 @@
 {% endblock title %}
 
 {% block body %}
-<form action="" method="post">
+<form action="" >
     {% csrf_token %}
-    <p>
-        <input type = "hidden" name = "id" value="{{ i.recipe_id }}">
-    </p>
-    <p>
-        recipe_name:<input type="text" name="recipe_name" value="{{ i.recipe_name }}">
-    </p>
-    <p>
-        recipe_description: <input type="text" name="recipe_description" value="{{ i.recipe_description }}">
-    </p>
-    <p>
-        <button type="submit">Update</button>
-    </p>
+    {% for i in data %}
+        <p>
+            recipe name:{{ i.0 }}
+        </p>
+        <p>
+            recipe description: {{ i.1 }}
+        </p>
+        <p>
+            cooking time:{{ i.2 }}
+        </p>
+        <p>
+            ingredients:{{ i.3 }}
+        </p>
+    {% endfor %}
 </form>
 
 {% endblock body %}
