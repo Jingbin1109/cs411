@@ -3,6 +3,8 @@ from django.http import HttpResponse
 from PandaXpress import models
 from django.db import connection
 import re
+import pandas as pd
+import numpy as np
 import datetime
 
 # Create your views here.
@@ -564,10 +566,20 @@ def storeprocedure(request):
     for k in range(len(data)):
         recipes_name = recipes_name + [data[k][1]]
         recipes_id = recipes_id +[data[k][0]]
-    recipes_id = list(set(recipes_id))
-    recipes_name = list(set(recipes_name))
+    recipes_id2 = list(set(recipes_id))
+    recipes_id2.sort(key=recipes_id.index)
+    recipes_name2 = list(set(recipes_name))
+    recipes_name2.sort(key=recipes_name.index)
     recipes=[]
-    for k in range(len(recipes_id)):
-        recipes = recipes+[[recipes_id[k],recipes_name[k]]]
-    return render(request, "FullCoverRecipe.html", {"data":data, "recipe":recipes, "USER":user_obj})
+    for k in range(len(recipes_id2)):
+        recipes = recipes+[[recipes_id2[k],recipes_name2[k]]]
+    recipe_data = pd.DataFrame(recipes, columns=['recipe_id', 'recipe_name'])
+    recipe_data['recipe_ingredients'] = [''] * len(recipes_id2)
+    for k in range(len(data)):
+        j = np.where(np.array(recipes_id2) == data[k][0])[0][0]
+        recipe_data.iloc[j, 2] = recipe_data.iloc[j, 2] + ',' + str(data[k][3])
+    recipe_data['recipe_ingredients'] = recipe_data.recipe_ingredients.apply(lambda x: re.sub('^,', '', x))
+    recipe_data = recipe_data.values.tolist()
+    print(recipe_data)
+    return render(request, "FullCoverRecipe.html", {"data":recipe_data, "USER":user_obj})
 
