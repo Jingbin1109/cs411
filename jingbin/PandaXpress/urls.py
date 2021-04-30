@@ -23,10 +23,11 @@ urlpatterns = [
     # path('inven/search/', views.search, name = 'search'),
     path('recipe/show/', views.ShowRecipe, name = 'recipe'),
     path('recipe/', views.OwnRecipe, name = 'recipe'),
+    path('recipe/detail/',view.DetailRecipe, name = 'detail'),
     path('recipe/search/', views.SearchRecipe, name = 'search'),
     path('recipe/create/', views.CreateRecipe, name = 'create'),
     path('recipe/update/',views.UpdateRecipe,name = 'update'),
     path('recipe/delete/',views.DeleteRecipe,name = 'delete'),
-    path('recipe/advance',views.AdvancedSearch,name = 'advance'),
-    path('recipe/popular',views.storeprocedure),
+    path('recipe/advance/',views.AdvancedSearch,name = 'advance'),
+    path('recipe/popular/',views.storeprocedure),
 ]

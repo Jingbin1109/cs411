@@ -287,57 +287,6 @@ def DeleteInven(request):
         cursor.execute('DELETE FROM pandaxpress.inventory WHERE inventory_id = %s', [id])
     return redirect('/inven/')
 
-# Zheng's code
-def ShowRecipe(request):
-    try:
-        id = request.session['id']
-        # request.GET.get('id')
-        user_obj = models.Membership.objects.get(member_id=id)
-    except:
-        return redirect('/PandaXpress/signin')
-    if request.method == 'GET':
-        get_name = request.GET.get("reci_name")
-        get_ind = request.GET.get("ind")
-        if get_name:
-            get_name = "%" + get_name + "%"
-            #db = Recipes.objects.filter(recipe_name__icontains= get_name)
-            db = models.Recipes.objects.raw("SELECT * FROM Recipes where recipe_name LIKE %s", [get_name])
-            if db:
-                return render(request, "recipeshow.html", {"data": db,'USER':user_obj})
-            else:
-                return render(request, "recipeshow.html", {"error": "No Such a Recipe",'USER':user_obj})
-        elif (get_ind is not None)&(get_ind !=''):
-            ind_list = str(get_ind).split(',')
-            db = []
-            for i in ind_list:
-                ind_list1 = "%" + i+ "%"
-                db2 = models.Ingredients.objects.raw(
-                        "SELECT ingredient_id FROM Ingredients where ingredient_name LIKE %s",
-                        [ind_list1])
-                if db2:
-                    for j in db2:
-                        db = db+[j.ingredient_id]
-                # print(db2)
-                # db = db+re.findall("\d+",str(db2))
-                # print(db)
-            db = tuple(db)
-            print(db)
-            if (db!=()) & (db is not None) :
-                db1 = models.Recipes.objects.raw(
-                'SELECT Distinct r.recipe_id as recipe_id, r.recipe_name as recipe_name, r.recipe_description as recipe_description,r.cooking_time as cooking_time '
-                'FROM Recipes r natural join Recipe_Incl ri WHERE ri.ingredient_id in %s order by r.recipe_name', [db])
-
-                if db1:
-                    return render(request, "recipeshow.html", {"data": db1, "USER": user_obj})
-            return render(request, "recipeshow.html", {"error": "No recipes, please try others","USER":user_obj})
-        elif (get_ind is None) & (get_name is None):
-            db = models.Recipes.objects.raw('SELECT * FROM Recipes ORDER BY recipe_id DESC LIMIT 10 ')
-            return render(request, "recipeshow.html", {"data": db, 'id': request.session['id'], 'USER': user_obj})
-        else:
-            return render(request, "recipeshow.html", {"error": "Input could not be empty","USER":user_obj})
-    else:
-        return HttpResponse("Cannot do this operation.")
-
 def OwnInventory(request):
     try:
         id = request.session['id']
@@ -393,6 +342,59 @@ def DeleteOwnInven(request):
         cursor.execute('DELETE FROM Inventory_Incl WHERE inventory_incl_id = %s', [id])
     return redirect('/PandaXpress/invenown/show/')
 
+# Zheng's code
+def ShowRecipe(request):
+    try:
+        id = request.session['id']
+        # request.GET.get('id')
+        user_obj = models.Membership.objects.get(member_id=id)
+    except:
+        return redirect('/PandaXpress/signin')
+    if request.method == 'GET':
+        get_name = request.GET.get("reci_name")
+        get_ind = request.GET.get("ind")
+        if get_name:
+            get_name = "%" + get_name + "%"
+            #db = Recipes.objects.filter(recipe_name__icontains= get_name)
+            db = models.Recipes.objects.raw("SELECT * FROM Recipes where recipe_name LIKE %s", [get_name])
+            if db:
+                return render(request, "recipeshow.html", {"data": db,'USER':user_obj})
+            else:
+                return render(request, "recipeshow.html", {"error": "No Such a Recipe",'USER':user_obj})
+        elif (get_ind is not None)&(get_ind !=''):
+            ind_list = str(get_ind).split(',')
+            db = []
+            for i in ind_list:
+                ind_list1 = "%" + i+ "%"
+                db2 = models.Ingredients.objects.raw(
+                        "SELECT ingredient_id FROM Ingredients where ingredient_name LIKE %s",
+                        [ind_list1])
+                if db2:
+                    for j in db2:
+                        db = db+[j.ingredient_id]
+                # print(db2)
+                # db = db+re.findall("\d+",str(db2))
+                # print(db)
+            db = tuple(db)
+            print(db)
+            if (db!=()) & (db is not None) :
+                db1 = models.Recipes.objects.raw(
+                'SELECT Distinct r.recipe_id as recipe_id, r.recipe_name as recipe_name, r.recipe_description as recipe_description,r.cooking_time as cooking_time '
+                'FROM Recipes r natural join Recipe_Incl ri WHERE ri.ingredient_id in %s order by r.recipe_name', [db])
+
+                if db1:
+                    return render(request, "recipeshow.html", {"data": db1, "USER": user_obj})
+            return render(request, "recipeshow.html", {"error": "No recipes, please try others","USER":user_obj})
+        elif (get_ind is None) & (get_name is None):
+            db = models.Recipes.objects.raw('SELECT * FROM Recipes ORDER BY recipe_id DESC LIMIT 10 ')
+            return render(request, "recipeshow.html", {"data": db, 'id': request.session['id'], 'USER': user_obj})
+        else:
+            return render(request, "recipeshow.html", {"error": "Input could not be empty","USER":user_obj})
+    else:
+        return HttpResponse("Cannot do this operation.")
+
+
+
 def OwnRecipe(request):
     try:
         id = request.session['id']
@@ -402,6 +404,19 @@ def OwnRecipe(request):
         return redirect('/PandaXpress/signin')
     db = models.Recipes.objects.raw('SELECT * FROM Recipes WHERE recipe_creator = %s',[id])
     return (render(request, "recipeown.html", {"data": db, 'id': request.session['id'], 'USER': user_obj}))
+def DetailRecipe(request):
+
+    try:
+        id = request.session['id']
+        # request.GET.get('id')
+        user_obj = models.Membership.objects.get(member_id=id)
+    except:
+        return redirect('/PandaXpress/signin')
+    sql = 'SELECT * FROM Recipes r WHERE recipe_id = '
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+    db = cursor.fetchall()
+    return (render(request, "recipedetail.html", {"data": db, 'id': request.session['id'], 'USER': user_obj}))
 
 def CreateRecipe(request):
     if request.method == 'POST':
