@@ -77,11 +77,17 @@ def User(request):
                 newfollow1 = None
             if newfollow1 is not None:
                 newfollow2 = newfollow1.member_id
-                with connection.cursor() as cursor:
-                    cursor.execute('INSERT into Follow(member_id,following_id) VALUES (%s, %s)', [id, newfollow2])
-                # refresh
-                request.session['id'] = id
-                return redirect('/PandaXpress/user')
+                cursor = connection.cursor()
+                cursor.execute("SELECT * FROM Follow where member_id = %s AND following_id=%s", [id, newfollow2])
+                db_test = cursor.fetchall()
+                if db_test:
+                    return redirect('/PandaXpress/user')
+                else:
+                    with connection.cursor() as cursor:
+                        cursor.execute('INSERT into Follow(member_id,following_id) VALUES (%s, %s)', [id, newfollow2])
+                    # refresh
+                    request.session['id'] = id
+                    return redirect('/PandaXpress/user')
             else:
                 HttpResponse("No such user.")
         elif "addinv" in request.POST:
@@ -484,9 +490,6 @@ def DetailRecipe(request):
     if request.method == 'POST':
         recipe_id = request.GET.get("id")
         if "AddLike" in request.POST:
-            with connection.cursor() as cursor:
-                cursor.execute("INSERT into Store(member_id,recipe_id,recipe_member_rel) VALUES (%s, %s,'Like')", [id, recipe_id])
-
             cursor = connection.cursor()
             cursor.execute('SELECT r.recipe_name AS recipe_name, r.recipe_description, r.cooking_time,'
                            '  GROUP_CONCAT(i.ingredient_name) AS ingredient_name, r.recipe_steps FROM Recipes r '
@@ -497,8 +500,19 @@ def DetailRecipe(request):
             db1 = models.Nutrients.objects.raw(
                 "SELECT n.nutrient_id,n.nutrient_name,h.nutrient_amnt FROM Nutrients n natural join Has h where h.recipe_id = %s ",
                 [recipe_id])
-        return (render(request, "recipedetail.html",
-                       {"data": db, 'nutrient': db1, 'id': request.session['id'], 'USER': user_obj}))
+            cursor = connection.cursor()
+            cursor.execute("SELECT * FROM Store where recipe_id = %s AND member_id=%s",[recipe_id,id])
+            db_test =cursor.fetchall()
+            if db_test:
+                return (render(request, "recipedetail.html",
+                               {"data": db, 'nutrient': db1, 'id': request.session['id'],'error':'You have liked','USER': user_obj}))
+            else:
+                with connection.cursor() as cursor:
+                    cursor.execute("INSERT into Store(member_id,recipe_id,recipe_member_rel) VALUES (%s, %s,'Like')", [id, recipe_id])
+                return render(request, "recipedetail.html",
+                               {"data": db, 'nutrient': db1, 'id': request.session['id'],'USER': user_obj})
+
+
 
 
 def CreateRecipe(request):

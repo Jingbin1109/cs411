@@ -11,6 +11,7 @@
             <button type="submit" class="btn btn-default" name="AddLike">Like this recipe</button>
         </p>
     </form>
+    {{ error }}
 <form action="" >
     {% csrf_token %}
     {% for i in data %}
