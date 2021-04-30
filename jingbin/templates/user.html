@@ -61,6 +61,7 @@ Inventory:
     {% for i in inventory_obj %}
         {{ i.inventory_id }}
         <a href="/PandaXpress/invenown/show">{{ i.inventory_name }}</a>
+        <a href="/PandaXpress/delete_inv/?id={{ id }}&inventoryid={{ i.inventory_id }}">Delete</a>
         <br>
     {% endfor %}
 <br>

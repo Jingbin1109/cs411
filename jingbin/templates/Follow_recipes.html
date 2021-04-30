@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Recipes liked by follows</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    Recipes liked by follows
+{% endblock title %}
+{% block body %}
 <table border="1" class = "table table-hover table-bordered">
     <thead>
     Recipes Liked by the follows
@@ -21,5 +20,4 @@
  {% endfor %}
  </tbody>
 </table>
-</body>
-</html>
+{% endblock body %}

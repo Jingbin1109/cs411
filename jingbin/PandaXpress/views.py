@@ -180,6 +180,14 @@ def delete_store(request):
     request.session['id'] = id1
     return redirect("/PandaXpress/user")
 
+def delete_inventory(request):
+    id1 = request.GET.get("id")
+    id2 = request.GET.get("inventoryid")
+    models.Owns.objects.filter(member_id=id1,inventory_id=id2).delete()
+    # db = models.Recipes.objects.raw('', [id])
+    request.session['id'] = id1
+    return redirect("/PandaXpress/user")
+
 def RecInd(request):
     id = request.session['id']
     # request.GET.get('id')
@@ -455,21 +463,43 @@ def OwnRecipe(request):
     return (render(request, "recipeown.html", {"data": db, 'id': request.session['id'], 'USER': user_obj}))
 
 def DetailRecipe(request):
-    recipe_id = request.GET.get("id")
     try:
         id = request.session['id']
         # request.GET.get('id')
         user_obj = models.Membership.objects.get(member_id=id)
     except:
         return redirect('/PandaXpress/signin')
-    cursor = connection.cursor()
-    cursor.execute('SELECT r.recipe_name AS recipe_name, r.recipe_description, r.cooking_time,'
-                   '  GROUP_CONCAT(i.ingredient_name) AS ingredient_name, r.recipe_steps FROM Recipes r '
-                   'NATURAL JOIN Recipe_Incl l JOIN Ingredients i ON l.ingredient_id = i.ingredient_id '
-                   'WHERE recipe_id = %s',[recipe_id])
-    db = cursor.fetchall()
-    print(db)
-    return (render(request, "recipedetail.html", {"data": db, 'id': request.session['id'], 'USER': user_obj}))
+    if request.method == 'GET':
+        recipe_id = request.GET.get("id")
+        cursor = connection.cursor()
+        cursor.execute('SELECT r.recipe_name AS recipe_name, r.recipe_description, r.cooking_time,'
+                    '  GROUP_CONCAT(i.ingredient_name) AS ingredient_name, r.recipe_steps FROM Recipes r '
+                    'NATURAL JOIN Recipe_Incl l JOIN Ingredients i ON l.ingredient_id = i.ingredient_id '
+                    'WHERE recipe_id = %s',[recipe_id])
+        db = cursor.fetchall()
+        # print(db)
+        db1 = models.Nutrients.objects.raw("SELECT n.nutrient_id,n.nutrient_name,h.nutrient_amnt FROM Nutrients n natural join Has h where h.recipe_id = %s ", [recipe_id])
+        return (render(request, "recipedetail.html",
+                       {"data": db, 'nutrient': db1, 'id': request.session['id'], 'USER': user_obj}))
+    if request.method == 'POST':
+        recipe_id = request.GET.get("id")
+        if "AddLike" in request.POST:
+            with connection.cursor() as cursor:
+                cursor.execute("INSERT into Store(member_id,recipe_id,recipe_member_rel) VALUES (%s, %s,'Like')", [id, recipe_id])
+
+            cursor = connection.cursor()
+            cursor.execute('SELECT r.recipe_name AS recipe_name, r.recipe_description, r.cooking_time,'
+                           '  GROUP_CONCAT(i.ingredient_name) AS ingredient_name, r.recipe_steps FROM Recipes r '
+                           'NATURAL JOIN Recipe_Incl l JOIN Ingredients i ON l.ingredient_id = i.ingredient_id '
+                           'WHERE recipe_id = %s', [recipe_id])
+            db = cursor.fetchall()
+            # print(db)
+            db1 = models.Nutrients.objects.raw(
+                "SELECT n.nutrient_id,n.nutrient_name,h.nutrient_amnt FROM Nutrients n natural join Has h where h.recipe_id = %s ",
+                [recipe_id])
+        return (render(request, "recipedetail.html",
+                       {"data": db, 'nutrient': db1, 'id': request.session['id'], 'USER': user_obj}))
+
 
 def CreateRecipe(request):
     if request.method == 'POST':

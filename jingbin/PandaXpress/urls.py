@@ -9,6 +9,7 @@ urlpatterns = [
     path("follow_recipes/",views.Follow_recipes),
     path("delete_follow/",views.delete_follow),
     path("delete_store/",views.delete_store),
+    path("delete_inv/",views.delete_inventory),
     path("recipe_ingredients/",views.RecInd),
 
     path('invenown/show/', views.OwnInventory),

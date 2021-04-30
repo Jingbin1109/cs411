@@ -5,12 +5,19 @@
 {% endblock title %}
 
 {% block body %}
+    <form action="" method="post">
+        {% csrf_token %}
+        <p>
+            <button type="submit" class="btn btn-default" name="AddLike">Like this recipe</button>
+        </p>
+    </form>
 <form action="" >
     {% csrf_token %}
     {% for i in data %}
         <p>
             recipe name: {{ i.0 }}
         </p>
+
         <p>
             recipe description: {{ i.1 }}
         </p>
@@ -24,6 +31,11 @@
             Steps: {{ i.4 }}
         </p>
     {% endfor %}
+{% for i in nutrient %}
+    <p>{{ i.nutrient_name }}: {{ i.nutrient_amnt }}</p>
+<hr>
+{% endfor %}
 </form>
+
 
 {% endblock body %}
