@@ -453,21 +453,22 @@ def OwnRecipe(request):
         return redirect('/PandaXpress/signin')
     db = models.Recipes.objects.raw('SELECT * FROM Recipes WHERE recipe_creator = %s',[id])
     return (render(request, "recipeown.html", {"data": db, 'id': request.session['id'], 'USER': user_obj}))
-def DetailRecipe(request, recipe_id):
 
+def DetailRecipe(request):
+    recipe_id = request.GET.get("id")
     try:
         id = request.session['id']
         # request.GET.get('id')
         user_obj = models.Membership.objects.get(member_id=id)
     except:
         return redirect('/PandaXpress/signin')
-    sql = 'SELECT r.recipe_name AS recipe_name, r.recipe_description, ' \
-          'r.cooking_time,  GROUP_CONCAT(i.ingredient_name) AS ingredient_name, r.recipe_steps'\
-          'FROM Recipes r NATURAL JOIN Recipe_Incl l JOIN Ingredients i ON l.ingredient_id = i.ingredient_id' \
-          'WHERE recipe_id = %s '
-    with connection.cursor() as cursor:
-        cursor.execute(sql,recipe_id)
+    cursor = connection.cursor()
+    cursor.execute('SELECT r.recipe_name AS recipe_name, r.recipe_description, r.cooking_time,'
+                   '  GROUP_CONCAT(i.ingredient_name) AS ingredient_name, r.recipe_steps FROM Recipes r '
+                   'NATURAL JOIN Recipe_Incl l JOIN Ingredients i ON l.ingredient_id = i.ingredient_id '
+                   'WHERE recipe_id = %s',[recipe_id])
     db = cursor.fetchall()
+    print(db)
     return (render(request, "recipedetail.html", {"data": db, 'id': request.session['id'], 'USER': user_obj}))
 
 def CreateRecipe(request):
