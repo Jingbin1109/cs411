@@ -599,7 +599,7 @@ def DeleteRecipe(request):
     # id = User.objects.get(id=id)
     id = request.GET.get("id")
     models.Recipes.objects.filter(recipe_id=id).delete()
-    models.Recipe_Incl.objects.filter(recipe_id=id).delete()
+    models.RecipeIncl.objects.filter(recipe_id=id).delete()
     models.Has.objects.filter(recipe_id=id).delete()
     return redirect("/PandaXpress/recipe/")
 
