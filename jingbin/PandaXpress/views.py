@@ -386,6 +386,12 @@ def CreateOwnInven(request):
         return render(request, "createingr.html",{"USER":user_obj})
 
 def UpdateOwnInven(request):
+    try:
+        id = request.session['id']
+        # request.GET.get('id')
+        user_obj = models.Membership.objects.get(member_id=id)
+    except:
+        return redirect('/PandaXpress/signin')
     if request.method == 'POST':
         inv_include_id = request.GET.get("id")
         ingredient_amnt = request.POST.get("ingr_amnt")
@@ -397,7 +403,7 @@ def UpdateOwnInven(request):
                 [ingredient_amnt, unit, expiry, inv_include_id])
         return redirect("/PandaXpress/invenown/show/")
     else:
-        return render(request, "invupdate.html")
+        return render(request, "invupdate.html",{"USER":user_obj})
 
 def DeleteOwnInven(request):
     id = request.GET.get("id")
@@ -456,8 +462,6 @@ def ShowRecipe(request):
     else:
         return HttpResponse("Cannot do this operation.")
 
-
-
 def OwnRecipe(request):
     try:
         id = request.session['id']
@@ -512,27 +516,82 @@ def DetailRecipe(request):
                 return render(request, "recipedetail.html",
                                {"data": db, 'nutrient': db1, 'id': request.session['id'],'USER': user_obj})
 
-
-
-
 def CreateRecipe(request):
+    try:
+        id = request.session['id']
+        # request.GET.get('id')
+        user_obj = models.Membership.objects.get(member_id=id)
+    except:
+        return redirect('/PandaXpress/signin')
     if request.method == 'POST':
-        #recipe_id = 300000+ random.randint(0,9999)
-        try:
-            id = request.session['id']
-            # request.GET.get('id')
-            user_obj = models.Membership.objects.get(member_id=id)
-
-        except:
-            return redirect('/PandaXpress/signin')
-        recipe_creator = id
         recipe_name = request.POST.get("recipe_name")
         recipe_description = request.POST.get("recipe_description")
-        with connection.cursor() as cursor:
-            cursor.execute('INSERT into Recipes(recipe_creator,recipe_name,recipe_description) VALUES (%s, %s, %s)', [recipe_creator, recipe_name, recipe_description])
-        return redirect("/PandaXpress/recipe/")
-
-    return render(request, "recipecreate.html")
+        recipe_genre = request.POST.get("recipe_genre")
+        recipe_steps = request.POST.get("recipe_steps")
+        cooking_time = request.POST.get("cooking_time")
+        calories = request.POST.get("calories")
+        fat = request.POST.get("fat")
+        sugar = request.POST.get("fat")
+        sodium = request.POST.get("fat")
+        protein = request.POST.get("protein")
+        sa_fat = request.POST.get("sa_fat")
+        carbohydrates = request.POST.get("carbohydrates")
+        check_recipe = models.Recipes.objects.raw("SELECT * FROM Recipes WHERE recipe_name = %s",
+                                                     [recipe_name])
+        if check_recipe:
+            return render(request, "recipecreate.html",{"USER":user_obj,"error":"This recipe name already exists"})
+        else:
+            with connection.cursor() as cursor:
+                cursor.execute('INSERT into Recipes(recipe_creator,recipe_name,recipe_description,recipe_genre,recipe_steps,cooking_time) VALUES (%s, %s, %s,%s,%s,%s)', [id, recipe_name, recipe_description,recipe_genre,recipe_steps,cooking_time])
+            recipe_id = models.Recipes.objects.raw(
+                "SELECT recipe_id FROM Recipes WHERE recipe_name = %s", [recipe_name])
+            recipe_id = int(re.findall("\d+", str(recipe_id[0]))[0])
+            with connection.cursor() as cursor:
+                cursor.execute('INSERT into Has(recipe_id,nutrient_id,nutrient_amnt) Values(%s,1,%s)',[recipe_id,calories])
+                cursor.execute('INSERT into Has(recipe_id,nutrient_id,nutrient_amnt) Values(%s,2,%s)',
+                              [recipe_id, fat])
+                cursor.execute('INSERT into Has(recipe_id,nutrient_id,nutrient_amnt) Values(%s,3,%s)',
+                              [recipe_id, sugar])
+                cursor.execute('INSERT into Has(recipe_id,nutrient_id,nutrient_amnt) Values(%s,4,%s)',
+                              [recipe_id, sodium])
+                cursor.execute('INSERT into Has(recipe_id,nutrient_id,nutrient_amnt) Values(%s,5,%s)',
+                              [recipe_id, protein])
+                cursor.execute('INSERT into Has(recipe_id,nutrient_id,nutrient_amnt) Values(%s,6,%s)',
+                              [recipe_id, sa_fat])
+                cursor.execute('INSERT into Has(recipe_id,nutrient_id,nutrient_amnt) Values(%s,7,%s)',
+                              [recipe_id, carbohydrates])
+            # add ingredient to our Recipe_Incl
+            inds = request.POST.get("inds")
+            ind_list = str(inds).split(',')
+            for i in ind_list:
+                checker = models.Ingredients.objects.raw("SELECT * FROM Ingredients WHERE ingredient_name = %s",
+                                                         [i])
+                if checker:
+                    ingr_id = models.Ingredients.objects.raw(
+                        "SELECT ingredient_id FROM Ingredients WHERE ingredient_name = %s", [i])
+                    # add ingredient to our inventory_incl
+                    ingr_id = int(re.findall("\d+", str(ingr_id[0]))[0])
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            'INSERT INTO Recipe_Incl(recipe_id, ingredient_id) '
+                            'VALUES(%s, %s)', [recipe_id, ingr_id])
+                else:
+                    print("Ingredient doesn't exist, adding to our database.")
+                    with connection.cursor() as cursor:
+                        cursor.execute("INSERT INTO Ingredients(ingredient_name) VALUES (%s)",
+                                       [i])
+                    ingr_id = models.Ingredients.objects.raw(
+                        "SELECT ingredient_id FROM Ingredients WHERE ingredient_name = %s",
+                        [i])
+                    # add ingredient to our inventory_incl
+                    ingr_id = int(re.findall("\d+", str(ingr_id[0]))[0])
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            'INSERT INTO Recipe_Incl(recipe_id, ingredient_id) '
+                            'VALUES(%s, %s)', [recipe_id, ingr_id])
+            return redirect("/PandaXpress/recipe")
+    else:
+        return render(request, "recipecreate.html", {"USER": user_obj})
 
 
 def DeleteRecipe(request):
@@ -540,28 +599,123 @@ def DeleteRecipe(request):
     # id = User.objects.get(id=id)
     id = request.GET.get("id")
     models.Recipes.objects.filter(recipe_id=id).delete()
+    models.Recipe_Incl.objects.filter(recipe_id=id).delete()
+    models.Has.objects.filter(recipe_id=id).delete()
     return redirect("/PandaXpress/recipe/")
 
 def UpdateRecipe(request):
+    try:
+        id = request.session['id']
+        # request.GET.get('id')
+        user_obj = models.Membership.objects.get(member_id=id)
+    except:
+        return redirect('/PandaXpress/signin')
+    recipe_id = request.GET.get("id")
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT r.recipe_name AS recipe_name, r.recipe_description, r.cooking_time, GROUP_CONCAT(i.ingredient_name) AS ingredient_name,r.recipe_genre, r.recipe_steps FROM Recipes r NATURAL JOIN Recipe_Incl l JOIN Ingredients i ON l.ingredient_id = i.ingredient_id WHERE recipe_id = %s", [recipe_id])
+        db_recipe = cursor.fetchall()
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT r.recipe_id, h.nutrient_id, h.nutrient_amnt FROM Recipes r natural join Has h WHERE r.recipe_id = %s ORDER BY h.nutrient_id",[recipe_id])
+        db_nutrients = cursor.fetchall()
+    print(db_recipe)
+    r_name = db_recipe[0][0]
+    r_description = db_recipe[0][1]
+    r_genre = db_recipe[0][4]
+    r_steps = db_recipe[0][5]
+    r_cooking_time = db_recipe[0][2]
+    r_ingredients = db_recipe[0][3]
+    print(db_nutrients[0])
+    r_calories = db_nutrients[0][2]
+    print(r_calories)
+    r_fat = db_nutrients[1][2]
+    r_sugar = db_nutrients[2][2]
+    print(r_sugar)
+    r_sodium = db_nutrients[3][2]
+    r_protein = db_nutrients[4][2]
+    r_sa_fat = db_nutrients[5][2]
+    r_carbohydrates = db_nutrients[6][2]
+    request.session['own_recipe'] = recipe_id
     if request.method == 'POST':
-        recipe_id = request.GET.get("id")
+        recipe_id = request.session['own_recipe']
         recipe_name = request.POST.get("recipe_name")
         recipe_description = request.POST.get("recipe_description")
-        '''
-        with connection.cursor() as cursor:
-            db = cursor.execute(
-                'SELECT * FROM Recipes WHERE recipe_id = %s)',
-                recipe_id)
-        '''
+        recipe_genre = request.POST.get("recipe_genre")
+        recipe_steps = request.POST.get("recipe_steps")
+        cooking_time = request.POST.get("cooking_time")
+        recipe_ingredients = request.POST.get("recipe_ingredients")
+        check_recipe = models.Recipes.objects.raw("SELECT * FROM Recipes WHERE recipe_name = %s AND recipe_id <> %s",
+                                                      [recipe_name,recipe_id])
+        calories = request.POST.get('calories')
+        fat = request.POST.get('fat')
+        sodium = request.POST.get('sodium')
+        sugar = request.POST.get('sugar')
+        sa_fat = request.POST.get('sa_fat')
+        protein = request.POST.get('protein')
+        carbohydrates = request.POST.get('carbohydrates')
 
-        with connection.cursor() as cursor:
-            cursor.execute(
-                'UPDATE Recipes SET recipe_name = %s, recipe_description = %s WHERE recipe_id = %s ',
-                [recipe_name, recipe_description,recipe_id])
-        return redirect("/PandaXpress/recipe/")
+        if check_recipe:
+            return render(request, "recipeupdate.html", {"USER": user_obj, "error": "This recipe name already exists"})
+        else:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'UPDATE Recipes SET recipe_name = %s, recipe_description = %s, recipe_genre=%s, recipe_steps=%s, cooking_time = %s WHERE recipe_id = %s ', [recipe_name, recipe_description,recipe_genre,recipe_steps, cooking_time,recipe_id])
+                cursor.execute(
+                    'DELETE FROM Recipe_Incl WHERE recipe_id = %s',[recipe_id])
+                cursor.execute(
+                    'DELETE FROM Has WHERE recipe_id = %s',[recipe_id])
+                with connection.cursor() as cursor:
+                    cursor.execute('INSERT into Has(recipe_id,nutrient_id,nutrient_amnt) Values(%s,1,%s)',[recipe_id, calories])
+                    cursor.execute('INSERT into Has(recipe_id,nutrient_id,nutrient_amnt) Values(%s,2,%s)',[recipe_id, fat])
+                    cursor.execute('INSERT into Has(recipe_id,nutrient_id,nutrient_amnt) Values(%s,3,%s)',[recipe_id, sugar])
+                    cursor.execute('INSERT into Has(recipe_id,nutrient_id,nutrient_amnt) Values(%s,4,%s)',[recipe_id, sodium])
+                    cursor.execute('INSERT into Has(recipe_id,nutrient_id,nutrient_amnt) Values(%s,5,%s)',[recipe_id, protein])
+                    cursor.execute('INSERT into Has(recipe_id,nutrient_id,nutrient_amnt) Values(%s,6,%s)',[recipe_id, sa_fat])
+                    cursor.execute('INSERT into Has(recipe_id,nutrient_id,nutrient_amnt) Values(%s,7,%s)',[recipe_id, carbohydrates])
+            ind_list = str(recipe_ingredients).split(',')
+            for i in ind_list:
+                checker = models.Ingredients.objects.raw("SELECT * FROM Ingredients WHERE ingredient_name = %s",
+                                                         [i])
+                if checker:
+                    ingr_id = models.Ingredients.objects.raw(
+                        "SELECT ingredient_id FROM Ingredients WHERE ingredient_name = %s", [i])
+                    # add ingredient to our inventory_incl
+                    ingr_id = int(re.findall("\d+", str(ingr_id[0]))[0])
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            'INSERT INTO Recipe_Incl(recipe_id, ingredient_id) '
+                            'VALUES(%s, %s)', [recipe_id, ingr_id])
+                else:
+                    print("Ingredient doesn't exist, adding to our database.")
+                    with connection.cursor() as cursor:
+                        cursor.execute("INSERT INTO Ingredients(ingredient_name) VALUES (%s)",
+                                       [i])
+                    ingr_id = models.Ingredients.objects.raw(
+                        "SELECT ingredient_id FROM Ingredients WHERE ingredient_name = %s",
+                        [i])
+                    # add ingredient to our inventory_incl
+                    ingr_id = int(re.findall("\d+", str(ingr_id[0]))[0])
+                    with connection.cursor() as cursor:
+                        cursor.execute(
+                            'INSERT INTO Recipe_Incl(recipe_id, ingredient_id) '
+                            'VALUES(%s, %s)', [recipe_id, ingr_id])
+            return redirect("/PandaXpress/recipe/")
     else:
-        return render(request, "recipeupdate.html")
-
+        return render(request, "recipeupdate.html",{"USER":user_obj,
+                                                    "recipe_id":recipe_id,
+                                                    "r_name":r_name,
+                                                    "r_description":r_description,
+                                                    "r_genre":r_genre ,
+                                                    "r_steps":r_steps,
+                                                    "r_cooking_time":r_cooking_time,
+                                                    "r_ingredients":r_ingredients,
+                                                    "r_calories": r_calories,
+                                                    "r_fat": r_fat,
+                                                    "r_sugar": r_sugar,
+                                                    "r_sodium": r_sodium,
+                                                    "r_protein": r_protein,
+                                                    "r_sa_fat": r_sa_fat,
+                                                    "r_carbohydrates": r_carbohydrates
+                                                    })
 
 
 def SearchRecipe(request):

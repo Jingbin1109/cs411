@@ -8,13 +8,47 @@
 <form action="" method="post">
     {% csrf_token %}
     <p>
-        <input type = "hidden" name = "id" value="{{ i.recipe_id }}">
+        <input type = "hidden" name = "recipe_id" value="{{ recipe_id }}">
     </p>
     <p>
-        recipe_name:<input type="text" name="recipe_name" value="{{ i.recipe_name }}">
+        recipe_name:<input type="text" name="recipe_name" value="{{ r_name }}">
+    </p>
+    {{ error }}
+    <p>
+        recipe_description: <input type="text" name="recipe_description" value="{{ r_description }}">
     </p>
     <p>
-        recipe_description: <input type="text" name="recipe_description" value="{{ i.recipe_description }}">
+        recipe_genre: <input type="text" name="recipe_genre" value="{{ r_genre }}">
+    </p>
+    <p>
+        recipe_steps: <input type="text" name="recipe_steps" value="{{ r_steps }}">
+    </p>
+    <p>
+        recipe_ingredients: <input type="text" name="recipe_ingredients" value="{{ r_ingredients }}">
+    </p>
+    <p>
+        cooking time: <input type="text" name="cooking_time" value="{{ r_cooking_time }}">
+    </p>
+    <p>
+        Calories: <input type="text" name="calories" value="{{ r_calories }}">
+    </p>
+    <p>
+        Total Fat (PDV): <input type="text" name="fat" value="{{ r_fat }}">
+    </p>
+    <p>
+        Sugar (PDV): <input type="text" name="sugar" value="{{ r_sugar }}">
+    </p>
+    <p>
+        Sodium (PDV): <input type="text" name="sodium" value="{{ r_sodium }}">
+    </p>
+    <p>
+        Protein (PDV): <input type="text" name="protein" value="{{ r_protein }}">
+    </p>
+    <p>
+        Saturated Fat (PDV): <input type="text" name="sa_fat" value="{{ r_sa_fat }}">
+    </p>
+    <p>
+        Carbohydrates (PDV): <input type="text" name="carbohydrates" value="{{ r_carbohydrates }}">
     </p>
     <p>
         <button type="submit">Update</button>

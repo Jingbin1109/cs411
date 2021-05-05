@@ -15,9 +15,9 @@
         </thead>
     {% for i in data %}
         <tr>
-            <td>{{i.recipe_name }} </td>
+            <td><a href="/PandaXpress/recipe/detail/?id={{ i.recipe_id }}">{{i.recipe_name }}</a> </td>
             <td>{{i.recipe_description }}</td>
-            <td><a href='update/?id={{ i.recipe_id }}'>Edit</a> | <a href='delete/?id={{ i.recipe_id }}'>Delete</a> </td>
+            <td><a href='/PandaXpress/recipe/update/?id={{ i.recipe_id }}'>Edit</a> | <a href='/PandaXpress/recipe/delete/?id={{ i.recipe_id }}'>Delete</a> </td>
         </tr>
     {% endfor %}
     </table>

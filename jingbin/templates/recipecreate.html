@@ -7,14 +7,47 @@
 <form action="" method="post">
     {% csrf_token %}
     <p>
-        recipe_name <input type="text" name="recipe_name">
+        Recipe Name: <input type="text" name="recipe_name">
+    </p>
+    {{ error }}
+    <p>
+        Recipe Description: <input type="text" name="recipe_description">
     </p>
     <p>
-        recipe_description <input type="text" name="recipe_description">
+        Recipe Genre: <input type="text" name="recipe_genre" placeholder="japanese,quick">
+    </p>
+    <p>
+        Ingredients Needed:  <input type="text" name="inds" placeholder="milk,beef,pepper">
+    </p>
+    <p>
+        Cooking Steps: <input type="text" name="recipe_steps" placeholder="'step1','step2','step3'">
+    </p>
+    <p>
+        Cooking Time: <input type="text" name="cooking_time" placeholder="20"> Minutes
+    </p>
+     <p>
+        Calories: <input type="text" name="calories">
+    </p>
+    <p>
+        Total Fat (PDV): <input type="text" name="fat">
+    </p>
+    <p>
+        Sugar (PDV): <input type="text" name="sugar">
+    </p>
+    <p>
+        Sodium (PDV): <input type="text" name="sodium">
+    </p>
+    <p>
+        Protein (PDV): <input type="text" name="protein">
+    </p>
+    <p>
+        Saturated Fat (PDV): <input type="text" name="sa_fat">
+    </p>
+    <p>
+        Carbohydrates (PDV): <input type="text" name="carbohydrates">
     </p>
     <p>
         <button type="submit">Create</button>
     </p>
 </form>
-    {{ success }}
 {% endblock body %}
