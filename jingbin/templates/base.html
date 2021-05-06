@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -25,7 +27,7 @@
   display: inline-block;
 }
 body {
-  font-family: Arial;
+  font-family: 'Roboto', sans-serif;
   margin: 0;
 }
 .dropdown-content {
@@ -40,13 +42,47 @@ body {
   display: block;
 }
 
+table {
+  border-collapse: collapse;
+  width: 60%;
+}
+
+th, td {
+  padding: 8px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #4e574f;
+  color: white;
+}
+
+tr:hover {background-color:#f5f5f5;}
+
+.newclass{
+  border-radius: 20px;
+  width: 80%;
+  height: 450px;
+  position: absolute;
+  font-weight: bolder;
+  left: 50%;
+  top: 60%;
+  transform: translate(-50%, -50%);
+}
+
+
+input[type=submit]:hover {
+  background-color: #555555;
+}
+
 .main {
     border-radius: 20px;
     width: 300px;
     height: 450px;
     position: absolute;
     left: 50%;
-    top: 80%;
+    top: 60%;
     transform: translate(-50%, -50%);
 }
 </style>

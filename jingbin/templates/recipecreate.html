@@ -4,6 +4,7 @@
     CreateRec
 {% endblock title %}
 {% block body %}
+<div class="main">
 <form action="" method="post">
     {% csrf_token %}
     <p>
@@ -50,4 +51,5 @@
         <button type="submit">Create</button>
     </p>
 </form>
+</div>
 {% endblock body %}
