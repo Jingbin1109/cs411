@@ -509,12 +509,12 @@ def DetailRecipe(request):
             db_test =cursor.fetchall()
             if db_test:
                 return (render(request, "recipedetail.html",
-                               {"data": db, 'nutrient': db1, 'id': request.session['id'],'error':'You have liked','USER': user_obj}))
+                               {"data": db, 'nutrient': db1, 'id': request.session['id'],'error':'Liked','USER': user_obj}))
             else:
                 with connection.cursor() as cursor:
                     cursor.execute("INSERT into Store(member_id,recipe_id,recipe_member_rel) VALUES (%s, %s,'Like')", [id, recipe_id])
                 return render(request, "recipedetail.html",
-                               {"data": db, 'nutrient': db1, 'id': request.session['id'],'USER': user_obj})
+                               {"data": db, 'nutrient': db1, 'id': request.session['id'],'USER': user_obj, 'error': "Liked"})
 
 def CreateRecipe(request):
     try:
