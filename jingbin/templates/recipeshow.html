@@ -5,6 +5,7 @@
 {% endblock title %}
 
 {% block body %}
+<div class="newclass">
     <form action="">
         <label for="">
             input the ingredients of recipes you want:  <input type="text" name="ind" placeholder="milk,potato">
@@ -32,4 +33,5 @@
     Cooking Time: {{ i.cooking_time }} minutes <br>
     <hr>
 {% endfor %}
+</div>
 {% endblock body %}
