@@ -29,3 +29,5 @@ Software Used:
 
 Link to a working demo:
 https://www.youtube.com/watch?v=oTSdvv2TSN0&ab_channel=KaninTangchartsiri
+
+For full details regarding our implementation, please consult our "Final Report" pdf file.
